@@ -7,6 +7,8 @@ import { ArrowRight, Mail, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { useToast } from '../../components/ui/Toast';
+import { authService } from '../../services/authService';
+import { extractApiError } from '../../services/api';
 
 const schema = z.object({
   email: z.string().email('Enter a valid email'),
@@ -17,18 +19,20 @@ type ForgotForm = z.infer<typeof schema>;
 export function ForgotPasswordPage() {
   const { notify } = useToast();
   const [sent, setSent] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
   const { register, handleSubmit, getValues, formState: { errors, isSubmitting } } = useForm<ForgotForm>({
     resolver: zodResolver(schema),
   });
 
-  const onSubmit = (_data: ForgotForm) => {
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        setSent(true);
-        notify({ type: 'info', title: 'Reset link sent', description: 'Check your inbox for instructions.' });
-        resolve();
-      }, 700);
-    });
+  const onSubmit = async (data: ForgotForm) => {
+    setServerError(null);
+    try {
+      await authService.forgotPassword(data.email);
+      setSent(true);
+      notify({ type: 'info', title: 'Reset link sent', description: 'Check your inbox for instructions.' });
+    } catch (err) {
+      setServerError(extractApiError(err));
+    }
   };
 
   if (sent) {
@@ -57,7 +61,12 @@ export function ForgotPasswordPage() {
           Enter the email associated with your account and we&rsquo;ll send a reset link.
         </p>
       </div>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+
+      {serverError && (
+        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">{serverError}</div>
+      )}
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
         <Input
           label="Email"
           type="email"

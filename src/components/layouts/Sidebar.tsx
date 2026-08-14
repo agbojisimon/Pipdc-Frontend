@@ -7,14 +7,16 @@ import {
   Newspaper,
   UserCircle,
   Settings,
+  Heart,
   LogOut,
   X,
 } from 'lucide-react';
 import { Logo } from '../brand/Logo';
 import { useAuth } from '../../contexts/AuthContext';
 import { cn } from '../../utils/cn';
+import { primaryRole, type Role } from '../../utils/roles';
 
-const items = [
+const adminItems = [
   { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
   { label: 'Properties', to: '/dashboard/properties', icon: Building2 },
   { label: 'Agents', to: '/dashboard/agents', icon: Users },
@@ -24,6 +26,27 @@ const items = [
   { label: 'Settings', to: '/dashboard/settings', icon: Settings },
 ];
 
+const agentItems = [
+  { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
+  { label: 'My Properties', to: '/dashboard/properties', icon: Building2 },
+  { label: 'My Enquiries', to: '/dashboard/enquiries', icon: MessageSquare },
+  { label: 'Saved Properties', to: '/dashboard/saved', icon: Heart },
+  { label: 'Settings', to: '/dashboard/settings', icon: Settings },
+];
+
+const clientItems = [
+  { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
+  { label: 'My Enquiries', to: '/dashboard/my-enquiries', icon: MessageSquare },
+  { label: 'Saved Properties', to: '/dashboard/saved', icon: Heart },
+  { label: 'Settings', to: '/dashboard/settings', icon: Settings },
+];
+
+const groups: Record<Role, { label: string; items: typeof adminItems }> = {
+  Admin: { label: 'Manage', items: adminItems },
+  Agent: { label: 'My Listings', items: agentItems },
+  Client: { label: 'Account', items: clientItems },
+};
+
 interface SidebarProps {
   open: boolean;
   onClose: () => void;
@@ -31,6 +54,8 @@ interface SidebarProps {
 
 export function Sidebar({ open, onClose }: SidebarProps) {
   const { user, signOut } = useAuth();
+  const role = primaryRole(user?.roles);
+  const group = groups[role];
 
   return (
     <>
@@ -60,9 +85,9 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         </div>
 
         <nav className="flex-1 overflow-y-auto px-4 py-6">
-          <p className="px-3 text-xs font-semibold uppercase tracking-wider text-ink-400">Manage</p>
+          <p className="px-3 text-xs font-semibold uppercase tracking-wider text-ink-400">{group.label}</p>
           <ul className="mt-3 space-y-1">
-            {items.map((item) => (
+            {group.items.map((item) => (
               <li key={item.to}>
                 <NavLink
                   to={item.to}
@@ -99,11 +124,11 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         <div className="border-t border-ink-100 p-4">
           <div className="flex items-center gap-3 rounded-xl bg-ink-50 p-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-forest-gradient text-sm font-semibold text-white">
-              {user?.name?.charAt(0) ?? 'A'}
+              {user?.fullName?.charAt(0) ?? 'A'}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="truncate text-sm font-semibold text-ink-900">{user?.name ?? 'Admin User'}</p>
-              <p className="truncate text-xs text-ink-500">{user?.email ?? 'admin@pipdc.gov.ng'}</p>
+              <p className="truncate text-sm font-semibold text-ink-900">{user?.fullName}</p>
+              <p className="truncate text-xs text-ink-500">{user?.email}</p>
             </div>
           </div>
           <div className="mt-3 flex gap-2">

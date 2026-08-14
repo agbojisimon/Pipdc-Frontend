@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -8,6 +8,8 @@ import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../components/ui/Toast';
+import { authService } from '../../services/authService';
+import { extractApiError } from '../../services/api';
 
 const schema = z.object({
   email: z.string().email('Enter a valid email'),
@@ -19,26 +21,28 @@ type LoginForm = z.infer<typeof schema>;
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { signIn } = useAuth();
   const { notify } = useToast();
   const [showPassword, setShowPassword] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginForm>({
     resolver: zodResolver(schema),
     defaultValues: { remember: true },
   });
 
-  const onSubmit = (data: LoginForm) => {
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        signIn(
-          { id: 'usr-001', name: 'Admin User', email: data.email, role: 'Admin' },
-          'mock-jwt-token',
-        );
-        notify({ type: 'success', title: 'Welcome back', description: 'You have signed in successfully.' });
-        navigate('/dashboard');
-        resolve();
-      }, 700);
-    });
+  const onSubmit = async (data: LoginForm) => {
+    setServerError(null);
+    try {
+      const auth = await authService.login({ email: data.email, password: data.password });
+      await signIn(auth);
+      notify({ type: 'success', title: 'Welcome back', description: 'You have signed in successfully.' });
+      const from = (location.state as { from?: string } | null)?.from;
+      const destination = from ?? (auth.roles.includes('Admin') ? '/dashboard' : '/');
+      navigate(destination, { replace: true });
+    } catch (err) {
+      setServerError(extractApiError(err));
+    }
   };
 
   return (
@@ -48,7 +52,11 @@ export function LoginPage() {
         <p className="mt-2 text-sm text-ink-500">Welcome back. Enter your details to continue.</p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      {serverError && (
+        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">{serverError}</div>
+      )}
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
         <Input
           label="Email"
           type="email"

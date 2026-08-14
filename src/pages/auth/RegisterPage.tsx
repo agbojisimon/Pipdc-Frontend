@@ -6,13 +6,14 @@ import { useState } from 'react';
 import { Eye, EyeOff, ArrowRight, Check } from 'lucide-react';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
-import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../components/ui/Toast';
+import { authService } from '../../services/authService';
+import { extractApiError } from '../../services/api';
 
 const schema = z.object({
-  name: z.string().min(2, 'Enter your full name'),
+  firstName: z.string().min(2, 'Enter your first name'),
+  lastName: z.string().min(2, 'Enter your last name'),
   email: z.string().email('Enter a valid email'),
-  phone: z.string().min(7, 'Enter a valid phone number'),
   password: z.string().min(6, 'At least 6 characters'),
   terms: z.boolean().refine((v) => v, 'You must accept the terms'),
 });
@@ -21,25 +22,27 @@ type RegisterForm = z.infer<typeof schema>;
 
 export function RegisterPage() {
   const navigate = useNavigate();
-  const { signIn } = useAuth();
   const { notify } = useToast();
   const [showPassword, setShowPassword] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<RegisterForm>({
     resolver: zodResolver(schema),
   });
 
-  const onSubmit = (data: RegisterForm) => {
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        signIn(
-          { id: 'usr-new', name: data.name, email: data.email, role: 'User' },
-          'mock-jwt-token',
-        );
-        notify({ type: 'success', title: 'Account created', description: 'Welcome to PIPDC.' });
-        navigate('/dashboard');
-        resolve();
-      }, 800);
-    });
+  const onSubmit = async (data: RegisterForm) => {
+    setServerError(null);
+    try {
+      await authService.register({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        password: data.password,
+      });
+      notify({ type: 'success', title: 'Account created', description: 'Sign in to continue to PIPDC.' });
+      navigate('/login');
+    } catch (err) {
+      setServerError(extractApiError(err));
+    }
   };
 
   return (
@@ -49,10 +52,16 @@ export function RegisterPage() {
         <p className="mt-2 text-sm text-ink-500">Join the official Plateau State property platform.</p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <Input label="Full name" placeholder="Your name" error={errors.name?.message} {...register('name')} />
+      {serverError && (
+        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">{serverError}</div>
+      )}
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Input label="First name" placeholder="Nankin" error={errors.firstName?.message} {...register('firstName')} />
+          <Input label="Last name" placeholder="Bagudu" error={errors.lastName?.message} {...register('lastName')} />
+        </div>
         <Input label="Email" type="email" placeholder="you@email.com" error={errors.email?.message} {...register('email')} />
-        <Input label="Phone" placeholder="+234 ..." error={errors.phone?.message} {...register('phone')} />
         <Input
           label="Password"
           type={showPassword ? 'text' : 'password'}

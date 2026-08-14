@@ -50,7 +50,7 @@ export function HeroSection({ filters, onFiltersChange, onSearch }: HeroSectionP
             transition={{ duration: 0.6, delay: 0.1 }}
             className="mt-5 max-w-xl text-lg text-white/85"
           >
-            Buy, sell, lease and invest with confidence. Verified listings, trusted agents and government-backed
+            Buy, sell, rent and invest with confidence. Verified listings, trusted agents and government-backed
             documentation across the Plateau.
           </motion.p>
 

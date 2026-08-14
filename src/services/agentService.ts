@@ -10,6 +10,10 @@ export const agentService = {
     const { data } = await api.get<Agent>(`/agents/${id}`);
     return data;
   },
+  async me(): Promise<Agent> {
+    const { data } = await api.get<Agent>('/agents/me');
+    return data;
+  },
   async create(payload: Record<string, unknown>): Promise<Agent> {
     const { data } = await api.post<Agent>('/agents', payload);
     return data;

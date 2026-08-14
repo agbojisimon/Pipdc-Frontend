@@ -2,8 +2,12 @@ import { api } from './api';
 import type { BlogPost } from '../types';
 
 export const blogService = {
-  async list(): Promise<BlogPost[]> {
-    const { data } = await api.get<BlogPost[]>('/blog');
+  async list(params?: Record<string, unknown>): Promise<BlogPost[]> {
+    const { data } = await api.get<BlogPost[]>('/blog', { params });
+    return data;
+  },
+  async listManaged(params?: Record<string, unknown>): Promise<BlogPost[]> {
+    const { data } = await api.get<BlogPost[]>('/blog/manage', { params });
     return data;
   },
   async getBySlug(slug: string): Promise<BlogPost> {

@@ -58,7 +58,7 @@ export function AgentCard({ agent, index = 0 }: AgentCardProps) {
         </div>
         <Link
           to={`/agents/${agent.id}`}
-          className="mt-5 inline-flex items-center justify-center gap-1.5 rounded-xl bg-ink-100 px-3 py-2.5 text-sm font-semibold text-ink-800 transition-colors hover:bg-forest-500 hover:text-white"
+          className="mt-5 inline-flex items-center justify-center gap-1.5 rounded-xl bg-ink-100 px-3.5 py-3 text-sm font-semibold text-ink-800 transition-colors hover:bg-forest-500 hover:text-white"
         >
           View Profile <ArrowUpRight className="h-3.5 w-3.5" />
         </Link>

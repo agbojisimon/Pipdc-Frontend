@@ -4,6 +4,7 @@ import { Select } from '../ui/Input';
 import { Button } from '../ui/Button';
 import type { PropertyFilters, PropertyType, PropertyStatus } from '../../types';
 import { plateauLocations } from '../../services/mockData';
+import { propertyStatusLabel } from '../../utils/propertyStatus';
 
 interface SearchFilterProps {
   filters: PropertyFilters;
@@ -57,7 +58,7 @@ export function SearchFilter({ filters, onChange, onSearch, compact }: SearchFil
           onChange={(e) => onChange({ ...filters, status: e.target.value as PropertyStatus | 'All' })}
         >
           {statuses.map((s) => (
-            <option key={s} value={s}>{s === 'All' ? 'Sale / Lease' : s}</option>
+            <option key={s} value={s}>{s === 'All' ? 'Sale / Rent' : propertyStatusLabel(s)}</option>
           ))}
         </Select>
       </div>
@@ -67,12 +68,12 @@ export function SearchFilter({ filters, onChange, onSearch, compact }: SearchFil
           value={filters.bedrooms ?? 0}
           onChange={(e) => onChange({ ...filters, bedrooms: Number(e.target.value) || undefined })}
         >
-          <option value={0}>Any Beds</option>
-          <option value={1}>1+ Beds</option>
-          <option value={2}>2+ Beds</option>
-          <option value={3}>3+ Beds</option>
-          <option value={4}>4+ Beds</option>
-          <option value={5}>5+ Beds</option>
+          <option value={0}>Any Bedrooms</option>
+          <option value={1}>1+ Bedrooms</option>
+          <option value={2}>2+ Bedrooms</option>
+          <option value={3}>3+ Bedrooms</option>
+          <option value={4}>4+ Bedrooms</option>
+          <option value={5}>5+ Bedrooms</option>
         </Select>
       </div>
       <div className="lg:col-span-1">
@@ -90,7 +91,7 @@ export function SearchFilter({ filters, onChange, onSearch, compact }: SearchFil
         </Select>
       </div>
       <div className="lg:col-span-1">
-        <Button onClick={handleSearch} size="md" className="w-full" leftIcon={<Search className="h-4 w-4" />}>
+        <Button onClick={handleSearch} size="lg" className="w-full" leftIcon={<Search className="h-4 w-4" />}>
           Search
         </Button>
       </div>

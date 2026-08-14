@@ -18,6 +18,10 @@ export const enquiryService = {
     const { data } = await api.get<Paginated<Enquiry>>('/enquiries', { params });
     return data;
   },
+  async mine(params?: Record<string, unknown>): Promise<Paginated<Enquiry>> {
+    const { data } = await api.get<Paginated<Enquiry>>('/enquiries/mine', { params });
+    return data;
+  },
   async update(id: number, payload: { fullName: string; email: string; phone?: string | null; message: string; status: string }): Promise<Enquiry> {
     const { data } = await api.put<Enquiry>(`/enquiries/${id}`, payload);
     return data;

@@ -11,6 +11,7 @@ const navItems = [
   { label: 'Home', to: '/' },
   { label: 'Properties', to: '/properties' },
   { label: 'Agents', to: '/agents' },
+  { label: 'Insights', to: '/blog' },
   { label: 'About', to: '/about' },
   { label: 'Contact', to: '/contact' },
 ];
@@ -19,7 +20,7 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const location = useLocation();
-  const { isAuthenticated, user, signOut } = useAuth();
+  const { isAuthenticated, isRestoring, signOut } = useAuth();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -71,26 +72,28 @@ export function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
-          {isAuthenticated ? (
+          {isRestoring ? (
+            <div className="h-10 w-28 animate-pulse rounded-xl bg-ink-100" />
+          ) : isAuthenticated ? (
             <>
               <Link to="/dashboard">
-                <Button variant="outline" size="md" leftIcon={<Building2 className="h-4 w-4" />}>
+                <Button variant="outline" size="lg" leftIcon={<Building2 className="h-4 w-4" />}>
                   Dashboard
                 </Button>
               </Link>
-              <Button variant="primary" size="md" onClick={signOut}>
+              <Button variant="primary" size="lg" onClick={signOut}>
                 Sign out
               </Button>
             </>
           ) : (
             <>
               <Link to="/login">
-                <Button variant="ghost" size="md">
+                <Button variant="ghost" size="lg">
                   Login
                 </Button>
               </Link>
               <Link to="/register">
-                <Button variant="gold" size="md">
+                <Button variant="gold" size="lg">
                   Get Started
                 </Button>
               </Link>
@@ -133,26 +136,28 @@ export function Navbar() {
                 </NavLink>
               ))}
               <div className="mt-2 flex flex-col gap-2 border-t border-ink-100 pt-3">
-                {isAuthenticated ? (
+                {isRestoring ? (
+                  <div className="h-11 animate-pulse rounded-xl bg-ink-100" />
+                ) : isAuthenticated ? (
                   <>
                     <Link to="/dashboard" className="inline-flex">
-                      <Button variant="outline" size="md" className="w-full">
+                      <Button variant="outline" size="lg" className="w-full">
                         Dashboard
                       </Button>
                     </Link>
-                    <Button variant="primary" size="md" className="w-full" onClick={signOut}>
+                    <Button variant="primary" size="lg" className="w-full" onClick={signOut}>
                       Sign out
                     </Button>
                   </>
                 ) : (
                   <>
                     <Link to="/login" className="inline-flex">
-                      <Button variant="outline" size="md" className="w-full">
+                      <Button variant="outline" size="lg" className="w-full">
                         Login
                       </Button>
                     </Link>
                     <Link to="/register" className="inline-flex">
-                      <Button variant="gold" size="md" className="w-full">
+                      <Button variant="gold" size="lg" className="w-full">
                         Get Started
                       </Button>
                     </Link>

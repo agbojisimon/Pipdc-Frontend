@@ -140,7 +140,7 @@ export function PropertiesPage() {
                 icon={<MapPin className="h-6 w-6" />}
                 title="No properties match your filters"
                 description="Try widening your price range or clearing filters to see more listings."
-                action={<Button onClick={() => onChange({})}>Clear filters</Button>}
+                action={<Button size="lg" onClick={() => onChange({})}>Clear filters</Button>}
               />
             ) : (
               <>

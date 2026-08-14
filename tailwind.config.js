@@ -50,6 +50,9 @@ export default {
         '2xl': '1.25rem',
         '3xl': '1.75rem',
       },
+      spacing: {
+        13: '3.25rem',
+      },
       boxShadow: {
         soft: '0 4px 20px -2px rgba(17, 17, 17, 0.06)',
         card: '0 8px 30px -6px rgba(17, 17, 17, 0.08)',

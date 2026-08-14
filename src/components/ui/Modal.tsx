@@ -37,7 +37,7 @@ export function Modal({ open, onClose, title, description, children, className, 
   return createPortal(
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4">
           <motion.div
             className="absolute inset-0 bg-ink-900/50 backdrop-blur-sm"
             initial={{ opacity: 0 }}
@@ -51,7 +51,7 @@ export function Modal({ open, onClose, title, description, children, className, 
             aria-modal="true"
             aria-label={title}
             className={cn(
-              'relative w-full rounded-2xl bg-white shadow-lift',
+              'relative flex w-full max-h-[calc(100dvh-2rem)] flex-col overflow-hidden rounded-2xl bg-white shadow-lift',
               sizes[size],
               className,
             )}
@@ -63,17 +63,17 @@ export function Modal({ open, onClose, title, description, children, className, 
             <button
               onClick={onClose}
               aria-label="Close dialog"
-              className="absolute right-4 top-4 rounded-lg p-1.5 text-ink-400 transition-colors hover:bg-ink-100 hover:text-ink-700"
+              className="absolute right-4 top-4 z-10 rounded-lg p-1.5 text-ink-400 transition-colors hover:bg-ink-100 hover:text-ink-700"
             >
               <X className="h-5 w-5" />
             </button>
             {(title || description) && (
-              <div className="border-b border-ink-100 px-6 py-5">
+              <div className="shrink-0 border-b border-ink-100 px-5 py-4 sm:px-6 sm:py-5">
                 {title && <h2 className="font-display text-xl font-semibold text-ink-900">{title}</h2>}
                 {description && <p className="mt-1 text-sm text-ink-500">{description}</p>}
               </div>
             )}
-            <div className="px-6 py-5">{children}</div>
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-4 sm:px-6 sm:py-5">{children}</div>
           </motion.div>
         </div>
       )}

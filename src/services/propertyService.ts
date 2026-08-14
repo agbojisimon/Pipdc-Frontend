@@ -30,6 +30,10 @@ export const propertyService = {
     const { data } = await api.put<Property>(`/properties/${id}`, payload);
     return data;
   },
+  async setFeatured(id: number, featured: boolean): Promise<Property> {
+    const { data } = await api.put<Property>(`/properties/${id}/featured`, { featured });
+    return data;
+  },
   async remove(id: number): Promise<void> {
     await api.delete(`/properties/${id}`);
   },

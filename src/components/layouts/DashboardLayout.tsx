@@ -3,9 +3,11 @@ import { Outlet } from 'react-router-dom';
 import { Menu, Search, Bell } from 'lucide-react';
 import { Sidebar } from './Sidebar';
 import { Button } from '../ui/Button';
+import { useAuth } from '../../contexts/AuthContext';
 
 export function DashboardLayout() {
   const [open, setOpen] = useState(false);
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-ink-50">
@@ -35,7 +37,7 @@ export function DashboardLayout() {
               </span>
             </Button>
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-forest-gradient text-sm font-semibold text-white">
-              A
+              {user?.fullName?.charAt(0)}
             </div>
           </div>
         </header>

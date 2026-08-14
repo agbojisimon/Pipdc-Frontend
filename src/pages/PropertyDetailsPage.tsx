@@ -20,6 +20,7 @@ import { PropertyCard } from '../components/property/PropertyCard';
 import { useToast } from '../components/ui/Toast';
 import { formatPrice, formatDate } from '../utils/format';
 import { cn } from '../utils/cn';
+import { propertyStatusLabel } from '../utils/propertyStatus';
 
 const enquirySchema = z.object({
   name: z.string().min(2, 'Enter your full name'),
@@ -59,7 +60,7 @@ export function PropertyDetailsPage() {
         <h1 className="mt-4 heading-3">Property not found</h1>
         <p className="mt-2 text-ink-500">The property you are looking for may have been removed.</p>
         <Link to="/properties" className="mt-6">
-          <Button variant="primary" leftIcon={<ArrowLeft className="h-4 w-4" />}>Back to properties</Button>
+          <Button variant="primary" size="lg" leftIcon={<ArrowLeft className="h-4 w-4" />}>Back to properties</Button>
         </Link>
       </div>
     );
@@ -112,7 +113,7 @@ export function PropertyDetailsPage() {
                 className="h-full w-full object-cover"
               />
               <div className="absolute left-4 top-4 flex gap-2">
-                <Badge tone={property.status === 'For Sale' ? 'forest' : 'gold'}>{property.status}</Badge>
+                <Badge tone={property.status === 'For Sale' ? 'forest' : 'gold'}>{propertyStatusLabel(property.status)}</Badge>
                 <Badge tone="neutral">{property.type}</Badge>
               </div>
               <div className="absolute right-4 top-4 flex gap-2">
@@ -269,12 +270,12 @@ export function PropertyDetailsPage() {
                 </div>
                 <div className="mt-4 flex gap-2">
                   <a href={`tel:${agent?.phone ?? property.agentId}`} className="flex-1">
-                    <Button variant="primary" size="md" className="w-full" leftIcon={<Phone className="h-4 w-4" />}>
+                    <Button variant="primary" size="lg" className="w-full" leftIcon={<Phone className="h-4 w-4" />}>
                       Call
                     </Button>
                   </a>
                   <a href={`mailto:${agent?.email ?? property.agentId}`} className="flex-1">
-                    <Button variant="outline" size="md" className="w-full" leftIcon={<Mail className="h-4 w-4" />}>
+                    <Button variant="outline" size="lg" className="w-full" leftIcon={<Mail className="h-4 w-4" />}>
                       Email
                     </Button>
                   </a>
@@ -291,7 +292,7 @@ export function PropertyDetailsPage() {
                   <Input label="Email" type="email" placeholder="you@email.com" error={errors.email?.message} {...register('email')} />
                   <Input label="Phone" placeholder="+234 ..." error={errors.phone?.message} {...register('phone')} />
                   <Textarea label="Message" rows={4} placeholder="I would like to schedule a viewing..." error={errors.message?.message} {...register('message')} />
-                  <Button type="submit" variant="gold" size="md" className="w-full" loading={isSubmitting}>
+                  <Button type="submit" variant="gold" size="lg" className="w-full" loading={isSubmitting}>
                     Send Enquiry
                   </Button>
                 </form>

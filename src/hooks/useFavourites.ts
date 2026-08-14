@@ -31,8 +31,20 @@ export function useFavourites() {
     enabled: isAuthenticated,
   });
 
-  const saveMutation = useMutation({ mutationFn: savedPropertyService.save });
-  const unsaveMutation = useMutation({ mutationFn: savedPropertyService.unsave });
+  const saveMutation = useMutation({
+    mutationFn: savedPropertyService.save,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.savedProperties });
+      void queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+  });
+  const unsaveMutation = useMutation({
+    mutationFn: savedPropertyService.unsave,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.savedProperties });
+      void queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+  });
 
   const updateBackendIds = (updater: (ids: number[]) => number[]) => {
     queryClient.setQueryData(queryKeys.savedIds, updater);

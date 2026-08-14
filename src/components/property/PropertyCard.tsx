@@ -5,6 +5,7 @@ import type { Property } from '../../types';
 import { formatPrice, formatCompact } from '../../utils/format';
 import { Badge } from '../ui/Badge';
 import { cn } from '../../utils/cn';
+import { propertyStatusLabel } from '../../utils/propertyStatus';
 
 interface PropertyCardProps {
   property: Property;
@@ -41,7 +42,7 @@ export function PropertyCard({ property, agentName, isFavourite, onToggleFavouri
         />
         <div className="absolute inset-x-0 top-0 flex items-start justify-between p-3">
           <Badge tone={statusTone[property.status]} className="backdrop-blur-sm">
-            {property.status}
+            {propertyStatusLabel(property.status)}
           </Badge>
           <button
             onClick={() => onToggleFavourite?.(property.id)}
@@ -78,7 +79,7 @@ export function PropertyCard({ property, agentName, isFavourite, onToggleFavouri
         <p className="mt-1 text-sm text-ink-500 line-clamp-1">{property.address}</p>
 
         <div className="mt-4 grid grid-cols-3 gap-2 border-t border-ink-100 pt-4 text-sm">
-          <Spec icon={<Bed className="h-4 w-4" />} value={property.bedrooms} label="Beds" />
+          <Spec icon={<Bed className="h-4 w-4" />} value={property.bedrooms} label="Bedrooms" />
           <Spec icon={<Bath className="h-4 w-4" />} value={property.bathrooms} label="Baths" />
           <Spec icon={<Maximize className="h-4 w-4" />} value={property.size} label={property.sizeUnit} />
         </div>
@@ -92,7 +93,7 @@ export function PropertyCard({ property, agentName, isFavourite, onToggleFavouri
           </div>
           <Link
             to={`/properties/${property.slug}`}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-ink-900 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-forest-600"
+            className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg bg-ink-900 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-forest-600"
           >
             View Details <ArrowUpRight className="h-3.5 w-3.5" />
           </Link>

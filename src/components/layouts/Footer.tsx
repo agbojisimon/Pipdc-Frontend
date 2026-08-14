@@ -37,7 +37,7 @@ export function Footer() {
             <Logo variant="light" />
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-ink-300">
               The Plateau State Property Investment &amp; Development Company is the official gateway to verified
-              property transactions across the Plateau. Buy, sell, lease and invest with confidence.
+              property transactions across the Plateau. Buy, sell, rent and invest with confidence.
             </p>
             <div className="mt-6 flex items-center gap-3">
               {socials.map((s) => (
@@ -95,7 +95,7 @@ export function Footer() {
                 aria-label="Email address"
                 className="border-white/10 bg-white/5 text-white placeholder-ink-400"
               />
-              <Button type="submit" variant="gold" size="md" rightIcon={<ArrowRight className="h-4 w-4" />}>
+              <Button type="submit" variant="gold" size="lg" rightIcon={<ArrowRight className="h-4 w-4" />}>
                 Subscribe
               </Button>
             </form>

@@ -32,6 +32,7 @@ export interface Agent {
   lastName: string;
   fullName: string;
   createdAt: string;
+  propertyCount: number;
 }
 
 export interface Property {
@@ -109,6 +110,7 @@ export interface User {
   roles: string[];
   status: 'Active' | 'Suspended';
   createdAt: string;
+  agentId: number | null;
 }
 
 export interface AuthUser {
@@ -116,6 +118,7 @@ export interface AuthUser {
   email: string;
   firstName: string;
   lastName: string;
+  phoneNumber: string | null;
   fullName: string;
   roles: string[];
 }
@@ -130,16 +133,33 @@ export interface AuthResponse {
   refreshTokenExpiresAt: string;
 }
 
-export interface SavedProperty {
-  id: number;
-  savedAt: string;
-}
+export type DashboardData = AdminDashboard | AgentDashboard | ClientDashboard;
 
-export interface DashboardStats {
+export interface AdminDashboard {
   totalProperties: number;
   totalAgents: number;
   totalEnquiries: number;
   totalUsers: number;
+  recentProperties: Property[];
+  recentEnquiries: Enquiry[];
+}
+
+export interface AgentDashboard {
+  agent: Agent;
+  totalProperties: number;
+  recentProperties: Property[];
+  totalEnquiries: number;
+  pendingEnquiries: number;
+  recentEnquiries: Enquiry[];
+}
+
+export interface ClientDashboard {
+  profile: AuthUser;
+  totalSavedProperties: number;
+  savedProperties: Property[];
+  totalEnquiries: number;
+  pendingEnquiries: number;
+  recentEnquiries: Enquiry[];
 }
 
 export interface PropertyFilters {

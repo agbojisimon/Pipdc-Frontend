@@ -56,7 +56,7 @@ export function HomePage() {
               description="A curated selection of verified, premium homes and investments."
             />
             <Link to="/properties" className="hidden sm:block">
-              <Button variant="outline" size="md" rightIcon={<ArrowRight className="h-4 w-4" />}>
+              <Button variant="outline" size="lg" rightIcon={<ArrowRight className="h-4 w-4" />}>
                 View all properties
               </Button>
             </Link>
@@ -87,7 +87,7 @@ export function HomePage() {
 
           <div className="mt-8 text-center sm:hidden">
             <Link to="/properties">
-              <Button variant="primary" size="md" rightIcon={<ArrowRight className="h-4 w-4" />}>
+              <Button variant="primary" size="lg" rightIcon={<ArrowRight className="h-4 w-4" />}>
                 View all properties
               </Button>
             </Link>
@@ -161,11 +161,19 @@ export function HomePage() {
       {/* Blog / Insights */}
       <section className="section-pad bg-ink-50">
         <div className="container-x">
-          <SectionHeading
-            eyebrow="Insights"
-            title="Guidance from the PIPDC advisory team"
-            description="Practical, plain-language guidance for buyers, sellers and investors."
-          />
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <SectionHeading
+              eyebrow="Insights"
+              title="Guidance from the PIPDC advisory team"
+              description="Practical, plain-language guidance for buyers, sellers and investors."
+            />
+            <Link
+              to="/blog"
+              className="inline-flex items-center gap-1 text-sm font-semibold text-forest-600 transition-colors hover:text-forest-700"
+            >
+              View all insights <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
           {postsQuery.isError ? (
             <SectionError message="Could not load insights." />
           ) : (
@@ -179,14 +187,16 @@ export function HomePage() {
                   transition={{ duration: 0.5, delay: Math.min(idx * 0.05, 0.2) }}
                   className="group flex flex-col overflow-hidden rounded-2xl border border-ink-100 bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-lift"
                 >
-                  <div className="aspect-[16/10] overflow-hidden">
-                    <img
-                      src={post.coverImageUrl ?? ''}
-                      alt={post.title}
-                      loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  </div>
+                  <Link to={`/blog/${post.slug}`}>
+                    <div className="aspect-[16/10] overflow-hidden">
+                      <img
+                        src={post.coverImageUrl ?? ''}
+                        alt={post.title}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    </div>
+                  </Link>
                   <div className="flex flex-1 flex-col p-5">
                     <div className="flex items-center gap-2">
                       <Badge tone="forest">{post.status}</Badge>
@@ -194,9 +204,11 @@ export function HomePage() {
                         <Newspaper className="h-3.5 w-3.5" /> {post.readMinutes} min read
                       </span>
                     </div>
-                    <h3 className="mt-3 font-display text-lg font-semibold leading-snug text-ink-900 line-clamp-2">
-                      {post.title}
-                    </h3>
+                    <Link to={`/blog/${post.slug}`}>
+                      <h3 className="mt-3 font-display text-lg font-semibold leading-snug text-ink-900 line-clamp-2 hover:text-forest-600">
+                        {post.title}
+                      </h3>
+                    </Link>
                     <p className="mt-2 text-sm text-ink-500 line-clamp-2">{post.excerpt}</p>
                     <div className="mt-4 flex items-center justify-between border-t border-ink-100 pt-4 text-xs text-ink-400">
                       <span>PIPDC Advisory</span>
