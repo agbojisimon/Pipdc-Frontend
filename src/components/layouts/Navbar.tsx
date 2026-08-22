@@ -97,9 +97,14 @@ export function Navbar() {
           ))}
 
           {/* Explore dropdown */}
-          <div ref={exploreRef} className="relative">
+          <div
+            ref={exploreRef}
+            className="relative"
+            onMouseEnter={() => setDesktopExploreOpen(true)}
+            onMouseLeave={() => setDesktopExploreOpen(false)}
+          >
             <button
-              onClick={() => setDesktopExploreOpen((v) => !v)}
+              onClick={() => setDesktopExploreOpen(true)}
               className={cn(
                 'relative inline-flex items-center gap-1 rounded-lg px-3.5 py-2 text-sm font-medium transition-colors',
                 isActiveExplore ? 'text-forest-600' : 'text-ink-700 hover:text-forest-600',
@@ -114,33 +119,35 @@ export function Navbar() {
                 />
               )}
             </button>
-            <AnimatePresence>
-              {desktopExploreOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8, scale: 0.96 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 8, scale: 0.96 }}
-                  transition={{ duration: 0.15 }}
-                  className="absolute right-0 top-full z-50 mt-1 w-48 overflow-hidden rounded-xl border border-ink-100 bg-white shadow-lift"
-                >
-                  {exploreItems.map((item) => (
-                    <NavLink
-                      key={item.to}
-                      to={item.to}
-                      onClick={() => setDesktopExploreOpen(false)}
-                      className={({ isActive }) =>
-                        cn(
-                          'block px-4 py-2.5 text-sm font-medium transition-colors',
-                          isActive ? 'bg-forest-50 text-forest-700' : 'text-ink-700 hover:bg-ink-50 hover:text-forest-600',
-                        )
-                      }
-                    >
-                      {item.label}
-                    </NavLink>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <div className="absolute right-0 top-full z-50 pt-1">
+              <AnimatePresence>
+                {desktopExploreOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                    transition={{ duration: 0.15 }}
+                    className="w-48 overflow-hidden rounded-xl border border-ink-100 bg-white shadow-lift"
+                  >
+                    {exploreItems.map((item) => (
+                      <NavLink
+                        key={item.to}
+                        to={item.to}
+                        onClick={() => setDesktopExploreOpen(false)}
+                        className={({ isActive }) =>
+                          cn(
+                            'block px-4 py-2.5 text-sm font-medium transition-colors',
+                            isActive ? 'bg-forest-50 text-forest-700' : 'text-ink-700 hover:bg-ink-50 hover:text-forest-600',
+                          )
+                        }
+                      >
+                        {item.label}
+                      </NavLink>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </nav>
 
@@ -203,6 +210,7 @@ export function Navbar() {
                   key={item.to}
                   to={item.to}
                   end={item.to === '/'}
+                  onClick={() => setMobileOpen(false)}
                   className={({ isActive }) =>
                     cn(
                       'rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
@@ -237,6 +245,7 @@ export function Navbar() {
                       <NavLink
                         key={item.to}
                         to={item.to}
+                        onClick={() => setMobileOpen(false)}
                         className={({ isActive }) =>
                           cn(
                             'block rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
@@ -256,28 +265,36 @@ export function Navbar() {
                   <div className="h-11 animate-pulse rounded-xl bg-ink-100" />
                 ) : isAuthenticated ? (
                   <>
-                    <Link to="/dashboard/messages" className="inline-flex">
+                    <Link to="/dashboard/messages" className="inline-flex" onClick={() => setMobileOpen(false)}>
                       <Button variant="outline" size="lg" className="w-full" leftIcon={<MessagesSquare className="h-4 w-4" />}>
                         Messages
                       </Button>
                     </Link>
-                    <Link to="/dashboard" className="inline-flex">
+                    <Link to="/dashboard" className="inline-flex" onClick={() => setMobileOpen(false)}>
                       <Button variant="outline" size="lg" className="w-full">
                         Dashboard
                       </Button>
                     </Link>
-                    <Button variant="primary" size="lg" className="w-full" onClick={signOut}>
+                    <Button
+                      variant="primary"
+                      size="lg"
+                      className="w-full"
+                      onClick={() => {
+                        setMobileOpen(false);
+                        signOut();
+                      }}
+                    >
                       Sign out
                     </Button>
                   </>
                 ) : (
                   <>
-                    <Link to="/login" className="inline-flex">
+                    <Link to="/login" className="inline-flex" onClick={() => setMobileOpen(false)}>
                       <Button variant="outline" size="lg" className="w-full">
                         Login
                       </Button>
                     </Link>
-                    <Link to="/register" className="inline-flex">
+                    <Link to="/register" className="inline-flex" onClick={() => setMobileOpen(false)}>
                       <Button variant="gold" size="lg" className="w-full">
                         Get Started
                       </Button>
