@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -9,6 +9,7 @@ import { Button } from '../../components/ui/Button';
 import { useToast } from '../../components/ui/Toast';
 import { authService } from '../../services/authService';
 import { extractApiError } from '../../services/api';
+import { isInternalPath } from '../../utils/navigation';
 
 const schema = z.object({
   firstName: z.string().min(2, 'Enter your first name'),
@@ -22,12 +23,18 @@ type RegisterForm = z.infer<typeof schema>;
 
 export function RegisterPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { notify } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<RegisterForm>({
     resolver: zodResolver(schema),
   });
+
+  const pendingFrom = (() => {
+    const from = (location.state as { from?: string } | null)?.from;
+    return isInternalPath(from) ? from : undefined;
+  })();
 
   const onSubmit = async (data: RegisterForm) => {
     setServerError(null);
@@ -39,7 +46,7 @@ export function RegisterPage() {
         password: data.password,
       });
       notify({ type: 'success', title: 'Account created', description: 'Sign in to continue to PIPDC.' });
-      navigate('/login');
+      navigate('/login', { state: pendingFrom ? { from: pendingFrom } : undefined });
     } catch (err) {
       setServerError(extractApiError(err));
     }
@@ -108,7 +115,7 @@ export function RegisterPage() {
 
       <p className="mt-8 text-center text-sm text-ink-500">
         Already have an account?{' '}
-        <Link to="/login" className="font-semibold text-forest-600 hover:text-forest-700">
+        <Link to="/login" state={pendingFrom ? { from: pendingFrom } : undefined} className="font-semibold text-forest-600 hover:text-forest-700">
           Sign in
         </Link>
       </p>

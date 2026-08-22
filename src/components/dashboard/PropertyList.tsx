@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Building2 } from 'lucide-react';
+import { ArrowRight, Building2, MessageSquare } from 'lucide-react';
 import { Card, CardHeader, CardTitle } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { formatPrice, timeAgo } from '../../utils/format';
@@ -52,6 +52,10 @@ export function PropertyList({ title, items, emptyMessage = 'No properties yet.'
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-ink-500">
+                    <MessageSquare className="h-3.5 w-3.5 text-forest-500" />
+                    {p.enquiryCount} {p.enquiryCount === 1 ? 'Enquiry' : 'Enquiries'}
+                  </span>
                   <span className="text-sm font-bold text-ink-900">{formatPrice(p.price, p.currency)}</span>
                   <Badge tone={statusTone[p.status] ?? 'neutral'}>{propertyStatusLabel(p.status)}</Badge>
                 </div>

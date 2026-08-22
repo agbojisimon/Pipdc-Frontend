@@ -1,4 +1,4 @@
-import { Building2, Users, MessageSquare, Newspaper, UserCircle, Settings, Heart } from 'lucide-react';
+import { Building2, Users, MessageSquare, Newspaper, UserCircle, Settings, Heart, MessagesSquare } from 'lucide-react';
 import { Breadcrumb } from '../../components/ui/Breadcrumb';
 import { useAuth } from '../../contexts/AuthContext';
 import { primaryRole } from '../../utils/roles';
@@ -6,22 +6,33 @@ import { PropertiesSection } from '../../components/dashboard/sections/Propertie
 import { AgentsSection } from '../../components/dashboard/sections/AgentsSection';
 import { EnquiriesSection } from '../../components/dashboard/sections/EnquiriesSection';
 import { MyEnquiriesSection } from '../../components/dashboard/sections/MyEnquiriesSection';
+import { MessagingSection } from '../../components/messaging/MessagingSection';
 import { BlogSection } from '../../components/dashboard/sections/BlogSection';
 import { UsersSection } from '../../components/dashboard/sections/UsersSection';
 import { SettingsSection } from '../../components/dashboard/sections/SettingsSection';
 import { SavedSection } from '../../components/dashboard/sections/SavedSection';
 
-export type DashboardSection = 'properties' | 'agents' | 'enquiries' | 'blog' | 'users' | 'settings' | 'saved' | 'my-enquiries';
+export type DashboardSection =
+  | 'properties'
+  | 'agents'
+  | 'enquiries'
+  | 'my-enquiries'
+  | 'messages'
+  | 'blog'
+  | 'users'
+  | 'settings'
+  | 'saved';
 
 const config: Record<DashboardSection, { title: string; description: string }> = {
   properties: { title: 'Properties', description: 'Manage all listings on the PIPDC portal.' },
   agents: { title: 'Agents', description: 'Manage verified PIPDC agents.' },
   enquiries: { title: 'Enquiries', description: 'Review and respond to client enquiries.' },
+  'my-enquiries': { title: 'My Enquiries', description: 'Enquiries you have submitted to agents.' },
+  messages: { title: 'Messages', description: 'Conversations between clients and property agents.' },
   blog: { title: 'Blog', description: 'Publish insights and market updates.' },
   users: { title: 'Users', description: 'Manage user accounts and roles.' },
   settings: { title: 'Settings', description: 'Manage your profile and account.' },
   saved: { title: 'Saved Properties', description: 'Properties you have saved for later.' },
-  'my-enquiries': { title: 'My Enquiries', description: 'Enquiries you have submitted to agents.' },
 };
 
 const agentDescriptions: Partial<Record<DashboardSection, string>> = {
@@ -33,11 +44,12 @@ const sectionIcons: Record<DashboardSection, React.ReactNode> = {
   properties: <Building2 className="h-5 w-5" />,
   agents: <Users className="h-5 w-5" />,
   enquiries: <MessageSquare className="h-5 w-5" />,
+  'my-enquiries': <MessageSquare className="h-5 w-5" />,
+  messages: <MessagesSquare className="h-5 w-5" />,
   blog: <Newspaper className="h-5 w-5" />,
   users: <UserCircle className="h-5 w-5" />,
   settings: <Settings className="h-5 w-5" />,
   saved: <Heart className="h-5 w-5" />,
-  'my-enquiries': <MessageSquare className="h-5 w-5" />,
 };
 
 export function DashboardSectionPage({ section }: { section: DashboardSection }) {
@@ -58,8 +70,9 @@ export function DashboardSectionPage({ section }: { section: DashboardSection })
 
       {section === 'properties' && <PropertiesSection />}
       {section === 'agents' && <AgentsSection />}
-      {section === 'enquiries' && <EnquiriesSection title={role === 'Agent' ? 'My Enquiries' : 'All Enquiries'} />}
+      {section === 'enquiries' && <EnquiriesSection title={role === 'Agent' ? 'My Enquiries' : 'Enquiries by Agent'} />}
       {section === 'my-enquiries' && <MyEnquiriesSection />}
+      {section === 'messages' && <MessagingSection />}
       {section === 'blog' && <BlogSection />}
       {section === 'users' && <UsersSection />}
       {section === 'settings' && <SettingsSection />}

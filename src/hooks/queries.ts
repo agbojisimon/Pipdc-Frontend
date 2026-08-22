@@ -1,8 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { agentService } from '../services/agentService';
 import { blogService } from '../services/blogService';
+import { conversationService } from '../services/conversationService';
 import { dashboardService } from '../services/dashboardService';
 import { enquiryService } from '../services/enquiryService';
+import { messageService } from '../services/messageService';
 import { propertyService } from '../services/propertyService';
 import { savedPropertyService } from '../services/savedPropertyService';
 import { userService } from '../services/userService';
@@ -21,6 +23,8 @@ export const queryKeys = {
   myAgent: ['agents', 'me'] as const,
   enquiries: ['enquiries'] as const,
   myEnquiries: ['enquiries', 'mine'] as const,
+  agentEnquirySummaries: ['enquiries', 'agents', 'summary'] as const,
+  agentEnquiries: (agentId: number) => ['enquiries', 'agents', agentId] as const,
   blogPosts: ['blog'] as const,
   blogPostsAll: ['blog', 'all'] as const,
   blogPost: (slug: string) => ['blog', 'slug', slug] as const,
@@ -28,6 +32,10 @@ export const queryKeys = {
   savedIds: ['saved-properties', 'ids'] as const,
   savedProperties: ['saved-properties'] as const,
   dashboard: (role: string) => ['dashboard', role] as const,
+  conversations: ['conversations'] as const,
+  conversation: (id: number) => ['conversations', id] as const,
+  conversationByEnquiry: (enquiryId: number) => ['conversations', 'enquiry', enquiryId] as const,
+  messages: (conversationId: number) => ['conversations', conversationId, 'messages'] as const,
 };
 
 export function useFeaturedProperties() {
@@ -102,6 +110,21 @@ export function useMyEnquiries() {
   });
 }
 
+export function useAgentEnquirySummaries() {
+  return useQuery({
+    queryKey: queryKeys.agentEnquirySummaries,
+    queryFn: () => enquiryService.agentSummaries({ pageSize: 100 }),
+  });
+}
+
+export function useAgentEnquiries(agentId: number | undefined) {
+  return useQuery({
+    queryKey: queryKeys.agentEnquiries(agentId ?? 0),
+    queryFn: () => enquiryService.byAgent(agentId!, { pageSize: 100 }),
+    enabled: Boolean(agentId),
+  });
+}
+
 export function useBlogPosts() {
   return useQuery({ queryKey: queryKeys.blogPosts, queryFn: blogService.list });
 }
@@ -142,5 +165,36 @@ export function useDashboard() {
     queryKey: queryKeys.dashboard(role),
     queryFn: dashboardService.get,
     enabled: Boolean(user),
+  });
+}
+
+export function useConversations() {
+  return useQuery({
+    queryKey: queryKeys.conversations,
+    queryFn: () => conversationService.list({ pageSize: 100 }),
+  });
+}
+
+export function useConversation(id: number | undefined) {
+  return useQuery({
+    queryKey: queryKeys.conversation(id ?? 0),
+    queryFn: () => conversationService.getById(id!),
+    enabled: Boolean(id),
+  });
+}
+
+export function useEnquiryConversationState(enquiryId: number | undefined) {
+  return useQuery({
+    queryKey: queryKeys.conversationByEnquiry(enquiryId ?? 0),
+    queryFn: () => conversationService.getStateByEnquiry(enquiryId!),
+    enabled: Boolean(enquiryId),
+  });
+}
+
+export function useMessages(conversationId: number | undefined) {
+  return useQuery({
+    queryKey: queryKeys.messages(conversationId ?? 0),
+    queryFn: () => messageService.list(conversationId!),
+    enabled: Boolean(conversationId),
   });
 }

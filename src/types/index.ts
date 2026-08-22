@@ -67,6 +67,7 @@ export interface Property {
   agentName: string;
   agentPhoto?: string | null;
   isSaved: boolean;
+  enquiryCount: number;
   createdAt: string;
   updatedAt?: string | null;
 }
@@ -85,7 +86,7 @@ export interface BlogPost {
   readMinutes: number;
 }
 
-export type EnquiryStatus = 'Pending' | 'Responded' | 'Closed';
+export type EnquiryStatus = 'Pending' | 'InProgress' | 'ViewingScheduled' | 'Resolved';
 
 export interface Enquiry {
   id: number;
@@ -96,9 +97,94 @@ export interface Enquiry {
   status: EnquiryStatus;
   propertyId: number;
   propertyTitle: string;
+  propertySlug: string;
   userId: string | null;
+  agentId: number;
+  agentName: string;
+  agentReadAt: string | null;
+  isRead: boolean;
   createdAt: string;
   updatedAt: string | null;
+}
+
+export interface AgentEnquirySummary {
+  agentId: number;
+  agentName: string;
+  totalEnquiries: number;
+  unreadEnquiries: number;
+  latestEnquiryAt: string | null;
+}
+
+export interface AgentNotifyResult {
+  enquiryId: number;
+  enquiryStatus: string;
+  clientFullName: string;
+  clientEmail: string;
+  clientPhone: string | null;
+  clientMessage: string;
+  agentId: number;
+  agentName: string;
+  agentEmail: string;
+  propertyId: number;
+  propertyTitle: string;
+  propertySlug: string;
+  agentReadAt: string | null;
+}
+
+export interface ConversationClient {
+  userId: string;
+  fullName: string;
+  email: string;
+}
+
+export interface ConversationAgent {
+  agentId: number;
+  fullName: string;
+  agencyName: string;
+  photoUrl: string | null;
+}
+
+export interface ConversationProperty {
+  propertyId: number;
+  title: string;
+  slug: string;
+}
+
+export interface Conversation {
+  id: number;
+  enquiryId: number;
+  client: ConversationClient;
+  agent: ConversationAgent;
+  property: ConversationProperty;
+  lastMessageAt: string | null;
+  messageCount: number;
+  unreadCount: number;
+  createdAt: string;
+  updatedAt: string | null;
+}
+
+export interface Message {
+  id: number;
+  conversationId: number;
+  senderUserId: string;
+  senderName: string;
+  content: string;
+  createdAt: string;
+  readAt: string | null;
+  isRead: boolean;
+}
+
+export interface EnquiryConversationState {
+  enquiryId: number;
+  conversation: Conversation | null;
+  client: ConversationClient;
+  agent: ConversationAgent;
+  property: ConversationProperty;
+}
+
+export interface FirstMessageResult {
+  conversation: Conversation;
+  message: Message;
 }
 
 export interface User {

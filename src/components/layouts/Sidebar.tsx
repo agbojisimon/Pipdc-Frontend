@@ -4,6 +4,7 @@ import {
   Building2,
   Users,
   MessageSquare,
+  MessagesSquare,
   Newspaper,
   UserCircle,
   Settings,
@@ -21,6 +22,7 @@ const adminItems = [
   { label: 'Properties', to: '/dashboard/properties', icon: Building2 },
   { label: 'Agents', to: '/dashboard/agents', icon: Users },
   { label: 'Enquiries', to: '/dashboard/enquiries', icon: MessageSquare },
+  { label: 'Messages', to: '/dashboard/messages', icon: MessagesSquare },
   { label: 'Blog', to: '/dashboard/blog', icon: Newspaper },
   { label: 'Users', to: '/dashboard/users', icon: UserCircle },
   { label: 'Settings', to: '/dashboard/settings', icon: Settings },
@@ -30,6 +32,7 @@ const agentItems = [
   { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
   { label: 'My Properties', to: '/dashboard/properties', icon: Building2 },
   { label: 'My Enquiries', to: '/dashboard/enquiries', icon: MessageSquare },
+  { label: 'Messages', to: '/dashboard/messages', icon: MessagesSquare },
   { label: 'Saved Properties', to: '/dashboard/saved', icon: Heart },
   { label: 'Settings', to: '/dashboard/settings', icon: Settings },
 ];
@@ -37,6 +40,7 @@ const agentItems = [
 const clientItems = [
   { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
   { label: 'My Enquiries', to: '/dashboard/my-enquiries', icon: MessageSquare },
+  { label: 'Messages', to: '/dashboard/messages', icon: MessagesSquare },
   { label: 'Saved Properties', to: '/dashboard/saved', icon: Heart },
   { label: 'Settings', to: '/dashboard/settings', icon: Settings },
 ];

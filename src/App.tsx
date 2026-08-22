@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ToastProvider } from './components/ui/Toast';
 import { AuthProvider } from './contexts/AuthContext';
+import { RealtimeProvider } from './contexts/RealtimeContext';
 import { PublicLayout } from './components/layouts/PublicLayout';
 import { AuthLayout } from './components/layouts/AuthLayout';
 import { DashboardLayout } from './components/layouts/DashboardLayout';
@@ -100,6 +101,10 @@ const router = createBrowserRouter([
         element: <DashboardSectionPage section="my-enquiries" />,
       },
       {
+        path: 'messages',
+        element: <DashboardSectionPage section="messages" />,
+      },
+      {
         path: 'blog',
         element: (
           <AdminGuard>
@@ -132,9 +137,11 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <ToastProvider>
-          <RouterProvider router={router} />
-        </ToastProvider>
+        <RealtimeProvider>
+          <ToastProvider>
+            <RouterProvider router={router} />
+          </ToastProvider>
+        </RealtimeProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
