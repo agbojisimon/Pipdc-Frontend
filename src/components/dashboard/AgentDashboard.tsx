@@ -55,6 +55,7 @@ export function AgentDashboard({ data }: { data: AgentDashboardData }) {
           title="Recent Enquiries"
           items={recentEnquiries}
           emptyMessage="No enquiries on your properties yet."
+          showUnread
           viewAll={{ to: '/dashboard/enquiries', label: 'View all' }}
         />
       </div>

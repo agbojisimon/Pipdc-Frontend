@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Building2 } from 'lucide-react';
+import { Menu, X, Building2, MessagesSquare } from 'lucide-react';
 import { Logo } from '../brand/Logo';
 import { Button } from '../ui/Button';
 import { useAuth } from '../../contexts/AuthContext';
@@ -37,7 +37,7 @@ export function Navbar() {
     <header
       className={cn(
         'fixed inset-x-0 top-0 z-50 transition-all duration-300',
-        scrolled ? 'glass shadow-soft' : 'bg-transparent',
+        scrolled ? 'glass shadow-soft' : 'bg-transparent lg:bg-white/45 lg:backdrop-blur-md',
       )}
     >
       <div className="container-x flex h-16 items-center justify-between gap-4 lg:h-20">
@@ -76,6 +76,11 @@ export function Navbar() {
             <div className="h-10 w-28 animate-pulse rounded-xl bg-ink-100" />
           ) : isAuthenticated ? (
             <>
+              <Link to="/dashboard/messages">
+                <Button variant="outline" size="lg" leftIcon={<MessagesSquare className="h-4 w-4" />}>
+                  Messages
+                </Button>
+              </Link>
               <Link to="/dashboard">
                 <Button variant="outline" size="lg" leftIcon={<Building2 className="h-4 w-4" />}>
                   Dashboard
@@ -140,6 +145,11 @@ export function Navbar() {
                   <div className="h-11 animate-pulse rounded-xl bg-ink-100" />
                 ) : isAuthenticated ? (
                   <>
+                    <Link to="/dashboard/messages" className="inline-flex">
+                      <Button variant="outline" size="lg" className="w-full" leftIcon={<MessagesSquare className="h-4 w-4" />}>
+                        Messages
+                      </Button>
+                    </Link>
                     <Link to="/dashboard" className="inline-flex">
                       <Button variant="outline" size="lg" className="w-full">
                         Dashboard

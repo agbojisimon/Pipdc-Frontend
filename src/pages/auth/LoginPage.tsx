@@ -10,6 +10,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../components/ui/Toast';
 import { authService } from '../../services/authService';
 import { extractApiError } from '../../services/api';
+import { isInternalPath } from '../../utils/navigation';
 
 const schema = z.object({
   email: z.string().email('Enter a valid email'),
@@ -38,12 +39,17 @@ export function LoginPage() {
       await signIn(auth);
       notify({ type: 'success', title: 'Welcome back', description: 'You have signed in successfully.' });
       const from = (location.state as { from?: string } | null)?.from;
-      const destination = from ?? (auth.roles.includes('Admin') ? '/dashboard' : '/');
+      const destination = isInternalPath(from) ? from : auth.roles.includes('Admin') ? '/dashboard' : '/';
       navigate(destination, { replace: true });
     } catch (err) {
       setServerError(extractApiError(err));
     }
   };
+
+  const pendingFrom = (() => {
+    const from = (location.state as { from?: string } | null)?.from;
+    return isInternalPath(from) ? from : undefined;
+  })();
 
   return (
     <div>
@@ -106,7 +112,7 @@ export function LoginPage() {
 
       <p className="mt-8 text-center text-sm text-ink-500">
         Don&rsquo;t have an account?{' '}
-        <Link to="/register" className="font-semibold text-forest-600 hover:text-forest-700">
+        <Link to="/register" state={pendingFrom ? { from: pendingFrom } : undefined} className="font-semibold text-forest-600 hover:text-forest-700">
           Create one
         </Link>
       </p>

@@ -3,22 +3,19 @@ import { ArrowRight, MessageSquare } from 'lucide-react';
 import { Card, CardHeader, CardTitle } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { timeAgo } from '../../utils/format';
+import { enquiryStatusLabel, enquiryStatusTone } from '../../utils/enquiryStatus';
+import { cn } from '../../utils/cn';
 import type { Enquiry } from '../../types';
-
-const enquiryTone: Record<string, 'neutral' | 'gold' | 'forest'> = {
-  Pending: 'gold',
-  Responded: 'forest',
-  Closed: 'neutral',
-};
 
 interface EnquiryListProps {
   title: string;
   items: Enquiry[];
   emptyMessage?: string;
   viewAll?: { to: string; label: string };
+  showUnread?: boolean;
 }
 
-export function EnquiryList({ title, items, emptyMessage = 'No enquiries yet.', viewAll }: EnquiryListProps) {
+export function EnquiryList({ title, items, emptyMessage = 'No enquiries yet.', viewAll, showUnread = false }: EnquiryListProps) {
   return (
     <Card>
       <CardHeader className="flex items-center justify-between">
@@ -35,10 +32,13 @@ export function EnquiryList({ title, items, emptyMessage = 'No enquiries yet.', 
         ) : (
           <div className="space-y-3">
             {items.map((e) => (
-              <div key={e.id} className="rounded-xl border border-ink-100 p-3">
+              <div key={e.id} className={cn('rounded-xl border border-ink-100 p-3', showUnread && !e.isRead && 'border-gold-200 bg-gold-50/40')}>
                 <div className="flex items-center justify-between gap-3">
                   <p className="truncate text-sm font-semibold text-ink-800">{e.fullName}</p>
-                  <Badge tone={enquiryTone[e.status] ?? 'neutral'}>{e.status}</Badge>
+                  <div className="flex shrink-0 items-center gap-2">
+                    {showUnread && !e.isRead && <Badge tone="danger">New</Badge>}
+                    <Badge tone={enquiryStatusTone(e.status)}>{enquiryStatusLabel(e.status)}</Badge>
+                  </div>
                 </div>
                 <p className="mt-1 line-clamp-1 text-xs text-ink-500">
                   <MessageSquare className="mr-0.5 inline h-3 w-3" />

@@ -1,49 +1,36 @@
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import {
   Bed, Bath, Maximize, MapPin, Calendar, Check, Phone, Mail, Share2,
-  Heart, ArrowLeft, ChevronLeft, ChevronRight, BadgeCheck, Star, AlertTriangle,
+  Heart, ArrowLeft, ChevronLeft, ChevronRight, BadgeCheck, Star, AlertTriangle, MessagesSquare,
 } from 'lucide-react';
 import { useProperty, useSimilarProperties, useAgent } from '../hooks/queries';
 import { useFavourites } from '../hooks/useFavourites';
-import { enquiryService } from '../services/enquiryService';
+import { useAuth } from '../contexts/AuthContext';
+import { conversationService } from '../services/conversationService';
 import { extractApiError } from '../services/api';
 import { Breadcrumb } from '../components/ui/Breadcrumb';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
-import { Input, Textarea } from '../components/ui/Input';
 import { PropertyCard } from '../components/property/PropertyCard';
 import { useToast } from '../components/ui/Toast';
 import { formatPrice, formatDate } from '../utils/format';
 import { cn } from '../utils/cn';
 import { propertyStatusLabel } from '../utils/propertyStatus';
 
-const enquirySchema = z.object({
-  name: z.string().min(2, 'Enter your full name'),
-  email: z.string().email('Enter a valid email'),
-  phone: z.string().min(7, 'Enter a valid phone number'),
-  message: z.string().min(10, 'Tell the agent a little more'),
-});
-
-type EnquiryForm = z.infer<typeof enquirySchema>;
-
 export function PropertyDetailsPage() {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const propertyQuery = useProperty(slug);
   const property = propertyQuery.data;
   const similarQuery = useSimilarProperties(property?.id);
   const agentQuery = useAgent(property?.agentId);
+  const { user } = useAuth();
   const [activeImage, setActiveImage] = useState(0);
+  const [starting, setStarting] = useState(false);
   const { isFavourite, toggle } = useFavourites();
   const { notify } = useToast();
-
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<EnquiryForm>({
-    resolver: zodResolver(enquirySchema),
-  });
 
   if (propertyQuery.isLoading) {
     return (
@@ -70,20 +57,19 @@ export function PropertyDetailsPage() {
   const similar = similarQuery.data ?? [];
   const fav = isFavourite(property.id);
 
-  const onSubmit = async (data: EnquiryForm) => {
+  const startMessaging = async () => {
+    if (!user) {
+      navigate('/login', { state: { from: `/dashboard/messages?property=${property.id}` } });
+      return;
+    }
+    setStarting(true);
     try {
-      await enquiryService.create({
-        fullName: data.name,
-        email: data.email,
-        phone: data.phone,
-        message: data.message,
-        propertyId: property.id,
-      });
-      notify({ type: 'success', title: 'Enquiry sent', description: `${agent?.fullName ?? 'A PIPDC agent'} will respond shortly.` });
-      reset();
+      const enquiry = await conversationService.resolveEnquiryForProperty(property.id);
+      navigate(`/dashboard/messages?enquiry=${enquiry.id}`);
     } catch (err) {
-      notify({ type: 'error', title: 'Enquiry failed', description: extractApiError(err) });
-      throw err;
+      notify({ type: 'error', title: 'Could not start conversation', description: extractApiError(err) });
+    } finally {
+      setStarting(false);
     }
   };
 
@@ -283,19 +269,20 @@ export function PropertyDetailsPage() {
               </div>
 
               <div className="rounded-2xl border border-ink-100 bg-white p-6 shadow-soft">
-                <h3 className="font-display text-base font-semibold text-ink-900">Enquire about this property</h3>
+                <h3 className="font-display text-base font-semibold text-ink-900">Message the agent</h3>
                 <p className="mt-1 text-xs text-ink-500">
-                  Your message goes directly to {agent?.fullName ?? property.agentName ?? 'the listing agent'}.
+                  Have questions about this property? Start a conversation with {agent?.fullName ?? property.agentName ?? 'the assigned agent'}.
                 </p>
-                <form onSubmit={handleSubmit(onSubmit)} className="mt-4 space-y-3">
-                  <Input label="Full name" placeholder="Your name" error={errors.name?.message} {...register('name')} />
-                  <Input label="Email" type="email" placeholder="you@email.com" error={errors.email?.message} {...register('email')} />
-                  <Input label="Phone" placeholder="+234 ..." error={errors.phone?.message} {...register('phone')} />
-                  <Textarea label="Message" rows={4} placeholder="I would like to schedule a viewing..." error={errors.message?.message} {...register('message')} />
-                  <Button type="submit" variant="gold" size="lg" className="w-full" loading={isSubmitting}>
-                    Send Enquiry
-                  </Button>
-                </form>
+                <Button
+                  variant="gold"
+                  size="lg"
+                  className="mt-4 w-full"
+                  loading={starting}
+                  leftIcon={<MessagesSquare className="h-4 w-4" />}
+                  onClick={startMessaging}
+                >
+                  Message Agent
+                </Button>
               </div>
             </div>
           </aside>

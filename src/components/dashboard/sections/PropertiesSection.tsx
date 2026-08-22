@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Plus, Star } from 'lucide-react';
+import { Plus, Star, MessageSquare } from 'lucide-react';
 import { Button } from '../../ui/Button';
 import { Badge } from '../../ui/Badge';
 import { ConfirmDialog } from '../../ui/ConfirmDialog';
@@ -115,6 +115,7 @@ export function PropertiesSection() {
                 <th className={thClass}>Agent</th>
                 <th className={thClass}>Price</th>
                 <th className={thClass}>Status</th>
+                <th className={thClass}>Enquiries</th>
                 {isAdmin && <th className={thClass}>Featured</th>}
                 <th className={thClass}>Listed</th>
                 <th className={thClass}></th>
@@ -131,6 +132,12 @@ export function PropertiesSection() {
                   <td className={tdClass}>{formatPrice(p.price, p.currency)}</td>
                   <td className={tdClass}>
                     <Badge tone={statusTone[p.status] ?? 'neutral'}>{propertyStatusLabel(p.status)}</Badge>
+                  </td>
+                  <td className={tdClass}>
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-100 px-2.5 py-1 text-xs font-semibold text-ink-700">
+                      <MessageSquare className="h-3 w-3 text-forest-500" />
+                      {p.enquiryCount}
+                    </span>
                   </td>
                   {isAdmin && (
                     <td className={tdClass}>

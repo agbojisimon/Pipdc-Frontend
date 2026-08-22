@@ -39,6 +39,7 @@ export function AdminDashboard({ data }: { data: AdminDashboardData }) {
           title="Recent Enquiries"
           items={data.recentEnquiries}
           emptyMessage="No enquiries yet."
+          showUnread
           viewAll={{ to: '/dashboard/enquiries', label: 'View all' }}
         />
       </div>
