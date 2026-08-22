@@ -51,7 +51,7 @@ export function SavedSection() {
                 <td className={tdClass}><Badge tone={statusTone[p.status] ?? 'neutral'}>{propertyStatusLabel(p.status)}</Badge></td>
                 <td className={tdClass}>{timeAgo(p.createdAt)}</td>
                 <td className={tdClass}>
-                  <div className="flex items-center justify-end gap-1">
+                  <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-end sm:gap-1.5">
                     <RowActions viewUrl={`/properties/${p.slug}`} />
                     <Button
                       variant="ghost"

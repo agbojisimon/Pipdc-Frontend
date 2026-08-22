@@ -32,7 +32,7 @@ export function PropertyList({ title, items, emptyMessage = 'No properties yet.'
           </Link>
         )}
       </CardHeader>
-      <div className="p-5">
+      <div className="p-3 sm:p-5">
         {items.length === 0 ? (
           <p className="text-sm text-ink-400">{emptyMessage}</p>
         ) : (
@@ -41,7 +41,7 @@ export function PropertyList({ title, items, emptyMessage = 'No properties yet.'
               <Link
                 key={p.id}
                 to={`/properties/${p.slug}`}
-                className="group flex items-center justify-between gap-3 rounded-xl border border-ink-100 p-3 transition-colors hover:border-forest-200 hover:bg-forest-50/40"
+                className="group flex flex-col gap-2 rounded-xl border border-ink-100 p-3 transition-colors hover:border-forest-200 hover:bg-forest-50/40 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-ink-800 group-hover:text-forest-700">{p.title}</p>
@@ -51,7 +51,7 @@ export function PropertyList({ title, items, emptyMessage = 'No properties yet.'
                     {timeAgo(p.createdAt)}
                   </p>
                 </div>
-                <div className="flex shrink-0 items-center gap-2">
+                <div className="flex shrink-0 flex-wrap items-center gap-2">
                   <span className="inline-flex items-center gap-1 text-xs font-semibold text-ink-500">
                     <MessageSquare className="h-3.5 w-3.5 text-forest-500" />
                     {p.enquiryCount} {p.enquiryCount === 1 ? 'Enquiry' : 'Enquiries'}

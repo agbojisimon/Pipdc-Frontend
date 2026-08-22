@@ -88,7 +88,7 @@ export function UsersSection() {
                     <td className={tdClass}><Badge tone={u.status === 'Active' ? 'forest' : 'neutral'}>{u.status}</Badge></td>
                     <td className={tdClass}>{formatDate(u.createdAt)}</td>
                     <td className={tdClass}>
-                      <div className="flex items-center justify-end gap-1">
+                      <div className="flex items-center justify-end gap-1 sm:gap-1.5">
                         {!isAdmin && !isAgent && (
                           <button
                             type="button"

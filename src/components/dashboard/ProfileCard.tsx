@@ -18,7 +18,7 @@ interface ProfileCardProps {
 export function ProfileCard({ name, email, avatarUrl, subtitle, verified, details }: ProfileCardProps) {
   return (
     <Card className="overflow-hidden">
-      <div className="flex items-center gap-4 p-5">
+      <div className="flex items-center gap-3 p-4 sm:gap-4 sm:p-5">
         {avatarUrl ? (
           <img src={avatarUrl} alt={name} className="h-14 w-14 rounded-2xl object-cover" />
         ) : (
@@ -38,7 +38,7 @@ export function ProfileCard({ name, email, avatarUrl, subtitle, verified, detail
         </div>
       </div>
       {details && details.length > 0 && (
-        <div className="grid gap-3 border-t border-ink-100 bg-ink-50/60 px-5 py-4 sm:grid-cols-2">
+        <div className="grid gap-3 border-t border-ink-100 bg-ink-50/60 px-4 py-3 sm:grid-cols-2 sm:px-5 sm:py-4">
           {details.map((d) => (
             <div key={d.label}>
               <p className="text-xs font-semibold uppercase tracking-wider text-ink-400">{d.label}</p>

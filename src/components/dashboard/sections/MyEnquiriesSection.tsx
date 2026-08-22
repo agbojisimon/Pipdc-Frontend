@@ -47,7 +47,7 @@ export function MyEnquiriesSection() {
                   <td className={tdClass}><Badge tone={enquiryStatusTone(e.status)}>{enquiryStatusLabel(e.status)}</Badge></td>
                   <td className={tdClass}>{timeAgo(e.createdAt)}</td>
                   <td className={tdClass}>
-                    <div className="flex items-center justify-end gap-1">
+                    <div className="flex items-center justify-end gap-1 sm:gap-1.5">
                       <button
                         type="button"
                         onClick={() => setViewing(e)}

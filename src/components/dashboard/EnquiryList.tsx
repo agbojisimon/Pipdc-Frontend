@@ -26,7 +26,7 @@ export function EnquiryList({ title, items, emptyMessage = 'No enquiries yet.', 
           </Link>
         )}
       </CardHeader>
-      <div className="p-5">
+      <div className="p-3 sm:p-5">
         {items.length === 0 ? (
           <p className="text-sm text-ink-400">{emptyMessage}</p>
         ) : (
@@ -44,7 +44,7 @@ export function EnquiryList({ title, items, emptyMessage = 'No enquiries yet.', 
                   <MessageSquare className="mr-0.5 inline h-3 w-3" />
                   {e.message}
                 </p>
-                <p className="mt-1 text-xs text-ink-400">{e.propertyTitle} · {timeAgo(e.createdAt)}</p>
+                <p className="mt-1 truncate text-xs text-ink-400">{e.propertyTitle} · {timeAgo(e.createdAt)}</p>
               </div>
             ))}
           </div>

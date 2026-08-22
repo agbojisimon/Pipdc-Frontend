@@ -8,7 +8,7 @@ export const tdClass = 'px-4 py-3 text-sm text-ink-700';
 
 export function LoadingRows({ rows = 4 }: { rows?: number }) {
   return (
-    <div className="space-y-3 p-5">
+    <div className="space-y-3 p-3 sm:p-5">
       {Array.from({ length: rows }).map((_, i) => (
         <div key={i} className="h-12 animate-pulse rounded-lg bg-ink-100" />
       ))}
