@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   MapPin, Calendar, Share2, ArrowLeft, ChevronLeft, ChevronRight,
@@ -27,6 +27,7 @@ import { useDevelopmentTracking } from '../hooks/queries';
 
 export function DevelopmentDetailsPage() {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { notify } = useToast();
   const [activeImage, setActiveImage] = useState(0);
@@ -67,7 +68,7 @@ export function DevelopmentDetailsPage() {
 
   const handleTrack = async () => {
     if (!user) {
-      notify({ type: 'info', title: 'Sign in required', description: 'Please sign in to track projects.' });
+      navigate('/login', { state: { from: `/developments/${slug}` } });
       return;
     }
     try {
