@@ -11,6 +11,8 @@ import {
   Heart,
   LogOut,
   X,
+  HardHat,
+  Radar,
 } from 'lucide-react';
 import { Logo } from '../brand/Logo';
 import { useAuth } from '../../contexts/AuthContext';
@@ -20,6 +22,7 @@ import { primaryRole, type Role } from '../../utils/roles';
 const adminItems = [
   { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
   { label: 'Properties', to: '/dashboard/properties', icon: Building2 },
+  { label: 'Developments', to: '/dashboard/developments', icon: HardHat },
   { label: 'Agents', to: '/dashboard/agents', icon: Users },
   { label: 'Enquiries', to: '/dashboard/enquiries', icon: MessageSquare },
   { label: 'Messages', to: '/dashboard/messages', icon: MessagesSquare },
@@ -39,6 +42,7 @@ const agentItems = [
 
 const clientItems = [
   { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
+  { label: 'Tracked Projects', to: '/dashboard/tracked', icon: Radar },
   { label: 'My Enquiries', to: '/dashboard/my-enquiries', icon: MessageSquare },
   { label: 'Messages', to: '/dashboard/messages', icon: MessagesSquare },
   { label: 'Saved Properties', to: '/dashboard/saved', icon: Heart },

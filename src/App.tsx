@@ -19,11 +19,14 @@ import { BlogPage } from './pages/blog/BlogPage';
 import { BlogDetailPage } from './pages/blog/BlogDetailPage';
 import { AboutPage } from './pages/AboutPage';
 import { ContactPage } from './pages/ContactPage';
+import { DevelopmentsPage } from './pages/DevelopmentsPage';
+import { DevelopmentDetailsPage } from './pages/DevelopmentDetailsPage';
 import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
 import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage';
 import { DashboardPage } from './pages/dashboard/DashboardPage';
 import { DashboardSectionPage } from './pages/dashboard/DashboardSectionPage';
+import { DevelopmentDetailPage } from './pages/dashboard/DevelopmentDetailPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
 const queryClient = new QueryClient({
@@ -49,6 +52,8 @@ const router = createBrowserRouter([
       { path: '/blog/:slug', element: <BlogDetailPage /> },
       { path: '/about', element: <AboutPage /> },
       { path: '/contact', element: <ContactPage /> },
+      { path: '/developments', element: <DevelopmentsPage /> },
+      { path: '/developments/:slug', element: <DevelopmentDetailsPage /> },
     ],
   },
   {
@@ -127,6 +132,26 @@ const router = createBrowserRouter([
       {
         path: 'saved',
         element: <DashboardSectionPage section="saved" />,
+      },
+      {
+        path: 'developments',
+        element: (
+          <AdminGuard>
+            <DashboardSectionPage section="developments" />
+          </AdminGuard>
+        ),
+      },
+      {
+        path: 'developments/:projectId',
+        element: (
+          <AdminGuard>
+            <DevelopmentDetailPage />
+          </AdminGuard>
+        ),
+      },
+      {
+        path: 'tracked',
+        element: <DashboardSectionPage section="tracked" />,
       },
     ],
   },

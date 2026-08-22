@@ -14,6 +14,7 @@ import { PropertyCardSkeleton } from '../../components/property/PropertyCardSkel
 import { formatDate } from '../../utils/format';
 import { HeroSection } from './HeroSection';
 import { WhyChooseSection } from './WhyChooseSection';
+import { FeaturedDevelopmentsSection } from './FeaturedDevelopmentsSection';
 import { StatsSection } from './StatsSection';
 import { CTASection } from './CTASection';
 
@@ -96,6 +97,8 @@ export function HomePage() {
       </section>
 
       <WhyChooseSection />
+
+      <FeaturedDevelopmentsSection />
 
       {/* Agents Section */}
       <section className="section-pad bg-ink-50">

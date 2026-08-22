@@ -1,4 +1,4 @@
-import { Building2, Users, MessageSquare, Newspaper, UserCircle, Settings, Heart, MessagesSquare } from 'lucide-react';
+import { Building2, Users, MessageSquare, Newspaper, UserCircle, Settings, Heart, MessagesSquare, HardHat, Radar } from 'lucide-react';
 import { Breadcrumb } from '../../components/ui/Breadcrumb';
 import { useAuth } from '../../contexts/AuthContext';
 import { primaryRole } from '../../utils/roles';
@@ -11,6 +11,8 @@ import { BlogSection } from '../../components/dashboard/sections/BlogSection';
 import { UsersSection } from '../../components/dashboard/sections/UsersSection';
 import { SettingsSection } from '../../components/dashboard/sections/SettingsSection';
 import { SavedSection } from '../../components/dashboard/sections/SavedSection';
+import { DevelopmentsSection } from '../../components/dashboard/sections/DevelopmentsSection';
+import { TrackedDevelopmentsSection } from '../../components/dashboard/sections/TrackedDevelopmentsSection';
 
 export type DashboardSection =
   | 'properties'
@@ -21,7 +23,9 @@ export type DashboardSection =
   | 'blog'
   | 'users'
   | 'settings'
-  | 'saved';
+  | 'saved'
+  | 'developments'
+  | 'tracked';
 
 const config: Record<DashboardSection, { title: string; description: string }> = {
   properties: { title: 'Properties', description: 'Manage all listings on the PIPDC portal.' },
@@ -33,6 +37,8 @@ const config: Record<DashboardSection, { title: string; description: string }> =
   users: { title: 'Users', description: 'Manage user accounts and roles.' },
   settings: { title: 'Settings', description: 'Manage your profile and account.' },
   saved: { title: 'Saved Properties', description: 'Properties you have saved for later.' },
+  developments: { title: 'Developments', description: 'Manage development projects and track construction progress.' },
+  tracked: { title: 'Tracked Projects', description: 'Development projects you are tracking.' },
 };
 
 const agentDescriptions: Partial<Record<DashboardSection, string>> = {
@@ -50,6 +56,8 @@ const sectionIcons: Record<DashboardSection, React.ReactNode> = {
   users: <UserCircle className="h-5 w-5" />,
   settings: <Settings className="h-5 w-5" />,
   saved: <Heart className="h-5 w-5" />,
+  developments: <HardHat className="h-5 w-5" />,
+  tracked: <Radar className="h-5 w-5" />,
 };
 
 export function DashboardSectionPage({ section }: { section: DashboardSection }) {
@@ -77,6 +85,8 @@ export function DashboardSectionPage({ section }: { section: DashboardSection })
       {section === 'users' && <UsersSection />}
       {section === 'settings' && <SettingsSection />}
       {section === 'saved' && <SavedSection />}
+      {section === 'developments' && <DevelopmentsSection />}
+      {section === 'tracked' && <TrackedDevelopmentsSection />}
     </div>
   );
 }

@@ -8,9 +8,11 @@ import { messageService } from '../services/messageService';
 import { propertyService } from '../services/propertyService';
 import { savedPropertyService } from '../services/savedPropertyService';
 import { userService } from '../services/userService';
+import { developmentService } from '../services/developmentService';
 import { useAuth } from '../contexts/AuthContext';
 import { primaryRole } from '../utils/roles';
 import type { PropertyFilters } from '../types';
+import type { DevelopmentProjectFilters, DevelopmentTrackingFilters } from '../types/development';
 
 export const queryKeys = {
   propertyList: (filters: PropertyFilters) => ['properties', filters] as const,
@@ -36,6 +38,14 @@ export const queryKeys = {
   conversation: (id: number) => ['conversations', id] as const,
   conversationByEnquiry: (enquiryId: number) => ['conversations', 'enquiry', enquiryId] as const,
   messages: (conversationId: number) => ['conversations', conversationId, 'messages'] as const,
+  developmentProjects: (filters?: DevelopmentProjectFilters) => ['development-projects', filters] as const,
+  featuredDevelopmentProjects: ['development-projects', 'featured'] as const,
+  developmentProject: (slug: string) => ['development-projects', 'slug', slug] as const,
+  developmentProjectById: (id: number) => ['development-projects', id] as const,
+  developmentUnits: (projectId: number) => ['development-projects', projectId, 'units'] as const,
+  developmentUpdates: (projectId: number) => ['development-projects', projectId, 'updates'] as const,
+  developmentTracking: (filters?: DevelopmentProjectFilters) => ['development-tracking', filters] as const,
+  adminDevelopmentTracking: (filters?: DevelopmentTrackingFilters) => ['admin-development-tracking', filters] as const,
 };
 
 export function useFeaturedProperties() {
@@ -196,5 +206,74 @@ export function useMessages(conversationId: number | undefined) {
     queryKey: queryKeys.messages(conversationId ?? 0),
     queryFn: () => messageService.list(conversationId!),
     enabled: Boolean(conversationId),
+  });
+}
+
+// ── Development Projects ─────────────────────────────────────────────────
+
+export function useDevelopmentProjects(filters?: DevelopmentProjectFilters) {
+  return useQuery({
+    queryKey: queryKeys.developmentProjects(filters),
+    queryFn: () => developmentService.browse(filters),
+  });
+}
+
+export function useDevelopmentProject(slug: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.developmentProject(slug ?? ''),
+    queryFn: () => developmentService.getPublicBySlug(slug!),
+    enabled: Boolean(slug),
+  });
+}
+
+export function useFeaturedDevelopmentProjects() {
+  return useQuery({
+    queryKey: queryKeys.featuredDevelopmentProjects,
+    queryFn: () => developmentService.browse({ featured: true, pageSize: 6 }),
+  });
+}
+
+export function useAdminDevelopmentProjects(filters?: DevelopmentProjectFilters) {
+  return useQuery({
+    queryKey: queryKeys.developmentProjects(filters),
+    queryFn: () => developmentService.list(filters),
+  });
+}
+
+export function useAdminDevelopmentProject(id: number | undefined) {
+  return useQuery({
+    queryKey: queryKeys.developmentProjectById(id ?? 0),
+    queryFn: () => developmentService.getById(id!),
+    enabled: Boolean(id),
+  });
+}
+
+export function useDevelopmentUnits(projectId: number | undefined) {
+  return useQuery({
+    queryKey: queryKeys.developmentUnits(projectId ?? 0),
+    queryFn: () => developmentService.listUnits(projectId!),
+    enabled: Boolean(projectId),
+  });
+}
+
+export function useDevelopmentUpdates(projectId: number | undefined) {
+  return useQuery({
+    queryKey: queryKeys.developmentUpdates(projectId ?? 0),
+    queryFn: () => developmentService.listUpdates(projectId!),
+    enabled: Boolean(projectId),
+  });
+}
+
+export function useDevelopmentTracking(filters?: DevelopmentProjectFilters) {
+  return useQuery({
+    queryKey: queryKeys.developmentTracking(filters),
+    queryFn: () => developmentService.getTracked(filters),
+  });
+}
+
+export function useAdminDevelopmentTracking(filters?: DevelopmentTrackingFilters) {
+  return useQuery({
+    queryKey: queryKeys.adminDevelopmentTracking(filters),
+    queryFn: () => developmentService.adminListTracking(filters),
   });
 }
