@@ -23,7 +23,7 @@ export function CardBody({ className, ...props }: HTMLAttributes<HTMLDivElement>
 }
 
 export function CardHeader({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('border-b border-ink-100 px-6 py-4', className)} {...props} />;
+  return <div className={cn('border-b border-ink-100 px-4 py-3 sm:px-6 sm:py-4', className)} {...props} />;
 }
 
 export function CardTitle({ className, ...props }: HTMLAttributes<HTMLHeadingElement>) {

@@ -10,7 +10,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 const baseField =
-  'w-full rounded-xl border bg-white px-4 text-sm text-ink-900 placeholder-ink-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-forest-500/40 focus:border-forest-500 disabled:bg-ink-100 disabled:cursor-not-allowed';
+  'w-full rounded-xl border bg-white px-4 text-base md:text-sm text-ink-900 placeholder-ink-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-forest-500/40 focus:border-forest-500 disabled:bg-ink-100 disabled:cursor-not-allowed';
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ className, label, error, hint, leftIcon, rightIcon, id, ...props }, ref) => {

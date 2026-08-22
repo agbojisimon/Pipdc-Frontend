@@ -17,7 +17,7 @@ export function DashboardLayout() {
           <button
             onClick={() => setOpen(true)}
             aria-label="Open sidebar"
-            className="rounded-lg p-2 text-ink-600 hover:bg-ink-100 lg:hidden"
+            className="rounded-lg p-2.5 text-ink-600 hover:bg-ink-100 lg:hidden"
           >
             <Menu className="h-5 w-5" />
           </button>
@@ -26,7 +26,7 @@ export function DashboardLayout() {
             <input
               type="search"
               placeholder="Search properties, agents, enquiries…"
-              className="h-10 w-full rounded-xl border border-ink-200 bg-ink-50 pl-10 pr-4 text-sm text-ink-800 placeholder-ink-400 transition-all focus:border-forest-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-forest-500/30"
+              className="h-10 w-full rounded-xl border border-ink-200 bg-ink-50 pl-10 pr-4 text-base md:text-sm text-ink-800 placeholder-ink-400 transition-all focus:border-forest-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-forest-500/30"
             />
           </div>
           <div className="ml-auto flex items-center gap-2">

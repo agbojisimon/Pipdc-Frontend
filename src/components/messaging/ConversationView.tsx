@@ -38,7 +38,7 @@ export function ConversationView({ conversation, currentUserId, canSend, onBack 
   ) : null;
 
   return (
-    <div className="flex h-[70vh] min-h-[420px] flex-col overflow-hidden rounded-2xl border border-ink-100 bg-white">
+    <div className="flex h-[70dvh] min-h-[300px] flex-col overflow-hidden rounded-2xl border border-ink-100 bg-white">
       <div className="border-b border-ink-100 p-4">
         {canSend ? (
           <div className="flex flex-wrap items-center justify-between gap-3">

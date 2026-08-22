@@ -145,7 +145,7 @@ export function PropertyDetailsPage() {
             </motion.div>
 
             {property.images.length > 1 && (
-              <div className="mt-3 grid grid-cols-4 gap-3">
+              <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3">
                 {property.images.map((img, idx) => (
                   <button
                     key={idx}
@@ -164,13 +164,13 @@ export function PropertyDetailsPage() {
             {/* Title block */}
             <div className="mt-8 rounded-2xl border border-ink-100 bg-white p-6 shadow-soft">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                <div>
+                <div className="min-w-0">
                   <h1 className="font-display text-2xl font-bold text-ink-900 sm:text-3xl">{property.title}</h1>
                   <p className="mt-2 inline-flex items-center gap-1.5 text-sm text-ink-500">
                     <MapPin className="h-4 w-4 text-forest-500" /> {property.address}, {property.area}, {property.state}
                   </p>
                 </div>
-                <div className="text-right">
+                <div className="min-w-0 text-right sm:text-right">
                   <p className="font-display text-3xl font-bold text-forest-600">
                     {formatPrice(property.price, property.currency)}
                     {property.period && <span className="text-sm font-medium text-ink-400">{property.period}</span>}

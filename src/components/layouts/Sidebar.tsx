@@ -11,15 +11,19 @@ import {
   Heart,
   LogOut,
   X,
+  HardHat,
+  Radar,
 } from 'lucide-react';
 import { Logo } from '../brand/Logo';
 import { useAuth } from '../../contexts/AuthContext';
+import { useScrollLock } from '../../hooks/useScrollLock';
 import { cn } from '../../utils/cn';
 import { primaryRole, type Role } from '../../utils/roles';
 
 const adminItems = [
   { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
   { label: 'Properties', to: '/dashboard/properties', icon: Building2 },
+  { label: 'Developments', to: '/dashboard/developments', icon: HardHat },
   { label: 'Agents', to: '/dashboard/agents', icon: Users },
   { label: 'Enquiries', to: '/dashboard/enquiries', icon: MessageSquare },
   { label: 'Messages', to: '/dashboard/messages', icon: MessagesSquare },
@@ -39,6 +43,7 @@ const agentItems = [
 
 const clientItems = [
   { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
+  { label: 'Tracked Projects', to: '/dashboard/tracked', icon: Radar },
   { label: 'My Enquiries', to: '/dashboard/my-enquiries', icon: MessageSquare },
   { label: 'Messages', to: '/dashboard/messages', icon: MessagesSquare },
   { label: 'Saved Properties', to: '/dashboard/saved', icon: Heart },
@@ -61,6 +66,8 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   const role = primaryRole(user?.roles);
   const group = groups[role];
 
+  useScrollLock(open);
+
   return (
     <>
       {open && (
@@ -82,7 +89,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           <button
             onClick={onClose}
             aria-label="Close sidebar"
-            className="rounded-lg p-1.5 text-ink-500 hover:bg-ink-100 lg:hidden"
+            className="rounded-lg p-2 text-ink-500 hover:bg-ink-100 lg:hidden"
           >
             <X className="h-5 w-5" />
           </button>

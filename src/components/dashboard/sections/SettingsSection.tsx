@@ -59,7 +59,7 @@ export function SettingsSection() {
         <CardHeader>
           <CardTitle>My Profile</CardTitle>
         </CardHeader>
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4 p-6">
+        <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4 p-4 sm:p-6">
           <Input label="Email" value={user.email} disabled hint="Email address cannot be changed." />
           <div className="grid gap-4 sm:grid-cols-2">
             <Input label="First name" error={errors.firstName?.message} {...register('firstName')} />
@@ -76,7 +76,7 @@ export function SettingsSection() {
         <CardHeader>
           <CardTitle>Account</CardTitle>
         </CardHeader>
-        <div className="space-y-4 p-6 text-sm">
+        <div className="space-y-4 p-4 text-sm sm:p-6">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-ink-400">Signed in as</p>
             <p className="mt-1 font-medium text-ink-900">{user.fullName}</p>

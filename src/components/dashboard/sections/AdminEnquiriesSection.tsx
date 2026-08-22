@@ -68,7 +68,7 @@ function AdminAgentEnquiries({ agentId, notifyingId, onView, onNotify }: AdminAg
               </td>
               <td className={tdClass}>{timeAgo(e.createdAt)}</td>
               <td className={tdClass}>
-                <div className="flex items-center justify-end gap-1">
+                <div className="flex items-center justify-end gap-1 sm:gap-1.5">
                   <button
                     type="button"
                     onClick={() => onView(e)}
@@ -206,7 +206,7 @@ export function AdminEnquiriesSection({ title }: { title: string }) {
         ) : summaries.length === 0 ? (
           <TableEmpty />
         ) : (
-          <div className="space-y-3 p-5">
+          <div className="space-y-3 p-3 sm:p-5">
             {summaries.map((s) => (
               <AgentSummaryCard
                 key={s.agentId}
@@ -225,7 +225,7 @@ export function AdminEnquiriesSection({ title }: { title: string }) {
       <Modal open={Boolean(viewing)} onClose={() => setViewing(null)} title="Enquiry details" size="md">
         {viewing && (
           <div className="space-y-4 text-sm">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wider text-ink-400">Client</p>
                 <p className="mt-1 font-medium text-ink-900">{viewing.fullName}</p>

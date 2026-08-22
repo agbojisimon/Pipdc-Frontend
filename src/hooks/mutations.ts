@@ -5,6 +5,7 @@ import { blogService } from '../services/blogService';
 import { enquiryService } from '../services/enquiryService';
 import { messageService } from '../services/messageService';
 import { propertyService } from '../services/propertyService';
+import { developmentService } from '../services/developmentService';
 import { queryKeys } from './queries';
 
 function useInvalidate(prefixes: string[][]) {
@@ -152,5 +153,119 @@ export function useMarkConversationRead() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.conversations });
     },
+  });
+}
+
+// ── Development Projects ─────────────────────────────────────────────────
+
+export function useCreateDevelopmentProject() {
+  const invalidate = useInvalidate([['development-projects'], ['dashboard']]);
+  return useMutation({
+    mutationFn: (payload: Record<string, unknown>) => developmentService.create(payload),
+    onSuccess: invalidate,
+  });
+}
+
+export function useUpdateDevelopmentProject() {
+  const invalidate = useInvalidate([['development-projects'], ['dashboard']]);
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: number; payload: Record<string, unknown> }) => developmentService.update(id, payload),
+    onSuccess: invalidate,
+  });
+}
+
+export function useSetDevelopmentFeatured() {
+  const invalidate = useInvalidate([['development-projects'], ['dashboard']]);
+  return useMutation({
+    mutationFn: ({ id, featured }: { id: number; featured: boolean }) => developmentService.setFeatured(id, featured),
+    onSuccess: invalidate,
+  });
+}
+
+export function useDeleteDevelopmentProject() {
+  const invalidate = useInvalidate([['development-projects'], ['dashboard']]);
+  return useMutation({
+    mutationFn: (id: number) => developmentService.remove(id),
+    onSuccess: invalidate,
+  });
+}
+
+// ── Development Units ────────────────────────────────────────────────────
+
+export function useCreateDevelopmentUnit() {
+  const invalidate = useInvalidate([['development-projects'], ['development-tracking']]);
+  return useMutation({
+    mutationFn: ({ projectId, payload }: { projectId: number; payload: Record<string, unknown> }) => developmentService.createUnit(projectId, payload),
+    onSuccess: invalidate,
+  });
+}
+
+export function useUpdateDevelopmentUnit() {
+  const invalidate = useInvalidate([['development-projects'], ['development-tracking']]);
+  return useMutation({
+    mutationFn: ({ projectId, unitId, payload }: { projectId: number; unitId: number; payload: Record<string, unknown> }) =>
+      developmentService.updateUnit(projectId, unitId, payload),
+    onSuccess: invalidate,
+  });
+}
+
+export function useDeleteDevelopmentUnit() {
+  const invalidate = useInvalidate([['development-projects'], ['development-tracking']]);
+  return useMutation({
+    mutationFn: ({ projectId, unitId }: { projectId: number; unitId: number }) => developmentService.deleteUnit(projectId, unitId),
+    onSuccess: invalidate,
+  });
+}
+
+// ── Development Updates ──────────────────────────────────────────────────
+
+export function useCreateDevelopmentUpdate() {
+  const invalidate = useInvalidate([['development-projects'], ['development-tracking']]);
+  return useMutation({
+    mutationFn: ({ projectId, payload }: { projectId: number; payload: Record<string, unknown> }) => developmentService.createUpdate(projectId, payload),
+    onSuccess: invalidate,
+  });
+}
+
+export function useUpdateDevelopmentUpdate() {
+  const invalidate = useInvalidate([['development-projects'], ['development-tracking']]);
+  return useMutation({
+    mutationFn: ({ projectId, updateId, payload }: { projectId: number; updateId: number; payload: Record<string, unknown> }) =>
+      developmentService.updateUpdate(projectId, updateId, payload),
+    onSuccess: invalidate,
+  });
+}
+
+export function useDeleteDevelopmentUpdate() {
+  const invalidate = useInvalidate([['development-projects'], ['development-tracking']]);
+  return useMutation({
+    mutationFn: ({ projectId, updateId }: { projectId: number; updateId: number }) => developmentService.deleteUpdate(projectId, updateId),
+    onSuccess: invalidate,
+  });
+}
+
+// ── Development Tracking ─────────────────────────────────────────────────
+
+export function useTrackDevelopmentProject() {
+  const invalidate = useInvalidate([['development-tracking'], ['development-projects'], ['dashboard']]);
+  return useMutation({
+    mutationFn: ({ projectId, unitId }: { projectId: number; unitId?: number }) => developmentService.track(projectId, unitId),
+    onSuccess: invalidate,
+  });
+}
+
+export function useStopDevelopmentTracking() {
+  const invalidate = useInvalidate([['development-tracking'], ['development-projects'], ['dashboard']]);
+  return useMutation({
+    mutationFn: (projectId: number) => developmentService.stopTracking(projectId),
+    onSuccess: invalidate,
+  });
+}
+
+export function useUpdateTrackingStatus() {
+  const invalidate = useInvalidate([['admin-development-tracking'], ['development-tracking']]);
+  return useMutation({
+    mutationFn: ({ trackingId, status }: { trackingId: number; status: string }) => developmentService.adminUpdateTrackingStatus(trackingId, status),
+    onSuccess: invalidate,
   });
 }
