@@ -14,7 +14,7 @@ import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Spinner } from '../components/ui/Spinner';
 import { useToast } from '../components/ui/Toast';
-import { formatDate } from '../utils/format';
+import { formatDate, formatPrice } from '../utils/format';
 import { cn } from '../utils/cn';
 import {
   developmentStatusTone,
@@ -89,7 +89,7 @@ export function DevelopmentDetailsPage() {
   };
 
   return (
-    <div className="bg-ink-50 pb-20 pt-28 lg:pt-36">
+    <div className="bg-ink-50 overflow-x-clip pb-20 pt-28 lg:pt-36">
       <div className="container-x">
         <Breadcrumb
           items={[
@@ -101,7 +101,7 @@ export function DevelopmentDetailsPage() {
 
         <div className="mt-6 grid gap-8 lg:grid-cols-12">
           {/* Gallery + Info */}
-          <div className="lg:col-span-8">
+          <div className="min-w-0 lg:col-span-8">
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -176,7 +176,7 @@ export function DevelopmentDetailsPage() {
             {/* Title + Progress */}
             <div className="mt-8 rounded-2xl border border-ink-100 bg-white p-4 shadow-soft sm:p-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                <div>
+                <div className="min-w-0">
                   <h1 className="font-display text-2xl font-bold text-ink-900 sm:text-3xl">{project.name}</h1>
                   <p className="mt-2 inline-flex items-center gap-1.5 text-sm text-ink-500">
                     <MapPin className="h-4 w-4 text-forest-500" /> {project.location}
@@ -237,9 +237,9 @@ export function DevelopmentDetailsPage() {
                     <thead>
                       <tr className="border-b border-ink-100 bg-ink-50/60">
                         <th className={thClass}>Unit</th>
-                        <th className={thClass}>Type</th>
-                        <th className={thClass}>Status</th>
                         <th className={thClass}>Price</th>
+                        <th className={thClass}>Status</th>
+                        <th className={thClass}>Type</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-ink-50">
@@ -248,13 +248,13 @@ export function DevelopmentDetailsPage() {
                           <td className={tdClass}>
                             <span className="font-medium text-ink-900">{u.unitIdentifier}</span>
                           </td>
-                          <td className={tdClass}>{u.unitType}</td>
+                          <td className={cn(tdClass, 'whitespace-nowrap font-semibold text-ink-900')}>
+                            {u.price != null ? formatPrice(u.price, u.currency) : '—'}
+                          </td>
                           <td className={tdClass}>
                             <Badge tone={unitStatusTone(u.status)}>{unitStatusLabel(u.status)}</Badge>
                           </td>
-                          <td className={tdClass}>
-                            {u.price != null ? `${u.currency} ${u.price.toLocaleString()}` : '—'}
-                          </td>
+                          <td className={tdClass}>{u.unitType}</td>
                         </tr>
                       ))}
                     </tbody>
