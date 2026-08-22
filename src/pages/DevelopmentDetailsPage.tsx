@@ -119,12 +119,12 @@ export function DevelopmentDetailsPage() {
                   <HardHat className="h-16 w-16 text-ink-300" />
                 </div>
               )}
-              <div className="absolute left-4 top-4 flex gap-2">
+              <div className="absolute left-3 top-3 flex gap-2 sm:left-4 sm:top-4">
                 <Badge tone={developmentStatusTone(project.status)} className="backdrop-blur-sm">
                   {developmentStatusLabel(project.status)}
                 </Badge>
               </div>
-              <div className="absolute right-4 top-4 flex gap-2">
+              <div className="absolute right-3 top-3 flex gap-2 sm:right-4 sm:top-4">
                 <button
                   aria-label="Share project"
                   onClick={() => {
@@ -141,16 +141,16 @@ export function DevelopmentDetailsPage() {
                   <button
                     onClick={() => setActiveImage((i) => (i - 1 + displayImages.length) % displayImages.length)}
                     aria-label="Previous image"
-                    className="absolute left-3 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-ink-800 backdrop-blur-md transition-colors hover:bg-white"
+                    className="absolute left-2 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-ink-800 backdrop-blur-md transition-colors hover:bg-white sm:left-3 sm:h-10 sm:w-10"
                   >
-                    <ChevronLeft className="h-5 w-5" />
+                    <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
                   </button>
                   <button
                     onClick={() => setActiveImage((i) => (i + 1) % displayImages.length)}
                     aria-label="Next image"
-                    className="absolute right-3 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-ink-800 backdrop-blur-md transition-colors hover:bg-white"
+                    className="absolute right-2 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-ink-800 backdrop-blur-md transition-colors hover:bg-white sm:right-3 sm:h-10 sm:w-10"
                   >
-                    <ChevronRight className="h-5 w-5" />
+                    <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
                   </button>
                 </>
               )}
@@ -174,7 +174,7 @@ export function DevelopmentDetailsPage() {
             )}
 
             {/* Title + Progress */}
-            <div className="mt-8 rounded-2xl border border-ink-100 bg-white p-6 shadow-soft">
+            <div className="mt-8 rounded-2xl border border-ink-100 bg-white p-4 shadow-soft sm:p-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <h1 className="font-display text-2xl font-bold text-ink-900 sm:text-3xl">{project.name}</h1>
@@ -216,15 +216,15 @@ export function DevelopmentDetailsPage() {
                   <p className="font-display text-xl font-bold text-ink-900">{project.updateCount}</p>
                   <p className="text-xs text-ink-500">Updates</p>
                 </div>
-                <div className="rounded-xl bg-ink-50 p-3 text-center sm:col-span-1">
-                  <p className="font-display text-xl font-bold text-ink-900">{project.developer ?? '—'}</p>
+                <div className="col-span-2 rounded-xl bg-ink-50 p-3 text-center sm:col-span-1">
+                  <p className="truncate font-display text-xl font-bold text-ink-900">{project.developer ?? '—'}</p>
                   <p className="text-xs text-ink-500">Developer</p>
                 </div>
               </div>
             </div>
 
             {/* Description */}
-            <div className="mt-6 rounded-2xl border border-ink-100 bg-white p-6 shadow-soft">
+            <div className="mt-6 rounded-2xl border border-ink-100 bg-white p-4 shadow-soft sm:p-6">
               <h2 className="font-display text-lg font-semibold text-ink-900">About this project</h2>
               <p className="mt-3 text-sm leading-relaxed text-ink-600">{project.description}</p>
             </div>
@@ -265,13 +265,13 @@ export function DevelopmentDetailsPage() {
 
             {/* Updates Timeline */}
             {project.updates.length > 0 && (
-              <div className="mt-6 rounded-2xl border border-ink-100 bg-white p-6 shadow-soft">
+              <div className="mt-6 rounded-2xl border border-ink-100 bg-white p-4 shadow-soft sm:p-6">
                 <h2 className="font-display text-lg font-semibold text-ink-900">Project Updates</h2>
                 <div className="mt-4 space-y-6">
                   {[...project.updates]
                     .sort((a, b) => new Date(b.updateDate).getTime() - new Date(a.updateDate).getTime())
                     .map((u) => (
-                      <div key={u.id} className="relative border-l-2 border-forest-200 pl-6">
+                      <div key={u.id} className="relative border-l-2 border-forest-200 pl-4 sm:pl-6">
                         <div className="absolute -left-[5px] top-1 h-2.5 w-2.5 rounded-full border-2 border-forest-500 bg-white" />
                         <div className="flex flex-wrap items-baseline justify-between gap-2">
                           <h3 className="font-display text-base font-semibold text-ink-900">{u.title}</h3>
@@ -287,7 +287,7 @@ export function DevelopmentDetailsPage() {
                         )}
                         <p className="mt-2 text-sm text-ink-600">{u.description}</p>
                         {u.imageUrls.length > 0 && (
-                          <div className="mt-3 grid grid-cols-3 gap-2">
+                          <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
                             {u.imageUrls.map((url, i) => (
                               <img key={i} src={url} alt="" className="aspect-video w-full rounded-lg object-cover" />
                             ))}
@@ -302,8 +302,8 @@ export function DevelopmentDetailsPage() {
 
           {/* Sidebar: Track */}
           <aside className="lg:col-span-4">
-            <div className="sticky top-24 space-y-6">
-              <Card className="p-6">
+            <div className="space-y-6 lg:sticky lg:top-24">
+              <Card className="p-4 sm:p-6">
                 <div className="flex items-center gap-3">
                   <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-forest-50 text-forest-600">
                     <HardHat className="h-6 w-6" />
