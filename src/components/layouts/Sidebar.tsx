@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Logo } from '../brand/Logo';
 import { useAuth } from '../../contexts/AuthContext';
+import { useScrollLock } from '../../hooks/useScrollLock';
 import { cn } from '../../utils/cn';
 import { primaryRole, type Role } from '../../utils/roles';
 
@@ -65,6 +66,8 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   const role = primaryRole(user?.roles);
   const group = groups[role];
 
+  useScrollLock(open);
+
   return (
     <>
       {open && (
@@ -86,7 +89,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           <button
             onClick={onClose}
             aria-label="Close sidebar"
-            className="rounded-lg p-1.5 text-ink-500 hover:bg-ink-100 lg:hidden"
+            className="rounded-lg p-2 text-ink-500 hover:bg-ink-100 lg:hidden"
           >
             <X className="h-5 w-5" />
           </button>

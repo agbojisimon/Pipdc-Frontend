@@ -97,7 +97,7 @@ export function MessagingSection() {
   const renderPane = () => {
     if (resolvingProperty) {
       return (
-        <div className="flex h-[70vh] min-h-[420px] flex-col items-center justify-center gap-3 rounded-2xl border border-ink-100 bg-white text-ink-500">
+        <div className="flex h-[70dvh] min-h-[300px] flex-col items-center justify-center gap-3 rounded-2xl border border-ink-100 bg-white text-ink-500">
           <span className="h-10 w-10 animate-spin rounded-full border-4 border-forest-500 border-t-transparent" />
           <p className="text-sm">Opening conversation…</p>
         </div>
@@ -107,7 +107,7 @@ export function MessagingSection() {
     if (enquiryId !== null) {
       if (stateQuery.isLoading || (stateQuery.data?.conversation && !selected)) {
         return (
-          <div className="flex h-[70vh] min-h-[420px] flex-col items-center justify-center gap-3 rounded-2xl border border-ink-100 bg-white text-ink-500">
+          <div className="flex h-[70dvh] min-h-[300px] flex-col items-center justify-center gap-3 rounded-2xl border border-ink-100 bg-white text-ink-500">
             <span className="h-10 w-10 animate-spin rounded-full border-4 border-forest-500 border-t-transparent" />
             <p className="text-sm">Loading…</p>
           </div>
@@ -116,7 +116,7 @@ export function MessagingSection() {
 
       if (stateQuery.isError) {
         return (
-          <div className="flex h-[70vh] min-h-[420px] flex-col items-center justify-center gap-3 rounded-2xl border border-ink-100 bg-white text-ink-500">
+          <div className="flex h-[70dvh] min-h-[300px] flex-col items-center justify-center gap-3 rounded-2xl border border-ink-100 bg-white text-ink-500">
             <AlertTriangle className="h-6 w-6 text-gold-500" />
             <p className="text-sm">Could not load this conversation.</p>
             <Button variant="outline" size="sm" leftIcon={<RefreshCw className="h-4 w-4" />} onClick={() => stateQuery.refetch()}>

@@ -14,11 +14,11 @@ export function Pagination({ page, totalPages, onPageChange, className }: Pagina
   const visible = pages.filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1);
 
   return (
-    <nav aria-label="Pagination" className={cn('flex items-center justify-center gap-1.5', className)}>
+    <nav aria-label="Pagination" className={cn('flex flex-wrap items-center justify-center gap-1.5', className)}>
       <button
         onClick={() => onPageChange(Math.max(1, page - 1))}
         disabled={page === 1}
-        className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-ink-200 bg-white text-ink-700 transition-colors hover:border-forest-500 hover:text-forest-600 disabled:opacity-40 disabled:hover:border-ink-200 disabled:hover:text-ink-700"
+        className="inline-flex h-11 min-w-11 items-center justify-center rounded-lg border border-ink-200 bg-white text-ink-700 transition-colors hover:border-forest-500 hover:text-forest-600 disabled:opacity-40 disabled:hover:border-ink-200 disabled:hover:text-ink-700"
         aria-label="Previous page"
       >
         <ChevronLeft className="h-4 w-4" />
@@ -32,7 +32,7 @@ export function Pagination({ page, totalPages, onPageChange, className }: Pagina
             <button
               onClick={() => onPageChange(p)}
               className={cn(
-                'inline-flex h-10 min-w-10 items-center justify-center rounded-lg border px-2 text-sm font-medium transition-colors',
+                'inline-flex h-11 min-w-11 items-center justify-center rounded-lg border px-2 text-sm font-medium transition-colors',
                 p === page
                   ? 'border-forest-500 bg-forest-500 text-white'
                   : 'border-ink-200 bg-white text-ink-700 hover:border-forest-500 hover:text-forest-600',
@@ -47,7 +47,7 @@ export function Pagination({ page, totalPages, onPageChange, className }: Pagina
       <button
         onClick={() => onPageChange(Math.min(totalPages, page + 1))}
         disabled={page === totalPages}
-        className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-ink-200 bg-white text-ink-700 transition-colors hover:border-forest-500 hover:text-forest-600 disabled:opacity-40 disabled:hover:border-ink-200 disabled:hover:text-ink-700"
+        className="inline-flex h-11 min-w-11 items-center justify-center rounded-lg border border-ink-200 bg-white text-ink-700 transition-colors hover:border-forest-500 hover:text-forest-600 disabled:opacity-40 disabled:hover:border-ink-200 disabled:hover:text-ink-700"
         aria-label="Next page"
       >
         <ChevronRight className="h-4 w-4" />

@@ -141,7 +141,7 @@ export function DevelopmentsSection() {
                       disabled={togglingId === p.id}
                       title={p.featured ? 'Remove from home page' : 'Feature on home page'}
                       className={cn(
-                        'rounded-lg p-1.5 transition-colors',
+                        'rounded-lg p-2 transition-colors',
                         p.featured ? 'text-gold-500 hover:text-gold-600' : 'text-ink-300 hover:text-gold-500',
                         togglingId === p.id && 'animate-pulse',
                       )}

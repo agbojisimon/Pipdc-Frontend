@@ -5,6 +5,7 @@ import { Menu, X, Building2, MessagesSquare } from 'lucide-react';
 import { Logo } from '../brand/Logo';
 import { Button } from '../ui/Button';
 import { useAuth } from '../../contexts/AuthContext';
+import { useScrollLock } from '../../hooks/useScrollLock';
 import { cn } from '../../utils/cn';
 
 const navItems = [
@@ -32,6 +33,8 @@ export function Navbar() {
   useEffect(() => {
     setOpen(false);
   }, [location.pathname]);
+
+  useScrollLock(open);
 
   return (
     <header
@@ -110,7 +113,7 @@ export function Navbar() {
           onClick={() => setOpen((v) => !v)}
           aria-label="Toggle menu"
           aria-expanded={open}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-ink-200 bg-white/70 text-ink-800 lg:hidden"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-ink-200 bg-white/70 text-ink-800 lg:hidden"
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>

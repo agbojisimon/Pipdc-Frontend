@@ -38,7 +38,7 @@ export function MessageComposer({ canSend, sending, onSend }: MessageComposerPro
           rows={1}
           placeholder={canSend ? 'Type a message…' : 'Sending is disabled for this account'}
           disabled={!canSend}
-          className="max-h-32 min-h-[44px] flex-1 resize-none rounded-xl border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-800 placeholder:text-ink-400 focus:border-forest-500 focus:outline-none disabled:cursor-not-allowed disabled:bg-ink-50 disabled:text-ink-400"
+          className="max-h-32 min-h-[44px] flex-1 resize-none rounded-xl border border-ink-200 bg-white px-3.5 py-2.5 text-base md:text-sm text-ink-800 placeholder:text-ink-400 focus:border-forest-500 focus:outline-none disabled:cursor-not-allowed disabled:bg-ink-50 disabled:text-ink-400"
         />
         <Button type="submit" size="md" loading={sending} disabled={!canSend || !draft.trim()} leftIcon={<Send className="h-4 w-4" />}>
           Send

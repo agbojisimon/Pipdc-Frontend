@@ -47,12 +47,12 @@ interface RowActionsProps {
 
 export function RowActions({ viewUrl, onEdit, onDelete, deleteDisabled }: RowActionsProps) {
   return (
-    <div className="flex items-center justify-end gap-1">
+    <div className="flex items-center justify-end gap-1.5">
       {viewUrl && (
         <a
           href={viewUrl}
           title="View"
-          className="rounded-lg p-2 text-ink-400 transition-colors hover:bg-ink-100 hover:text-forest-600"
+          className="rounded-lg p-2.5 text-ink-400 transition-colors hover:bg-ink-100 hover:text-forest-600"
         >
           <ExternalLink className="h-4 w-4" />
         </a>
@@ -62,7 +62,7 @@ export function RowActions({ viewUrl, onEdit, onDelete, deleteDisabled }: RowAct
           type="button"
           onClick={onEdit}
           title="Edit"
-          className="rounded-lg p-2 text-ink-400 transition-colors hover:bg-ink-100 hover:text-forest-600"
+          className="rounded-lg p-2.5 text-ink-400 transition-colors hover:bg-ink-100 hover:text-forest-600"
         >
           <Pencil className="h-4 w-4" />
         </button>
@@ -73,7 +73,7 @@ export function RowActions({ viewUrl, onEdit, onDelete, deleteDisabled }: RowAct
           onClick={onDelete}
           title="Delete"
           disabled={deleteDisabled}
-          className="rounded-lg p-2 text-ink-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-lg p-2.5 text-ink-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-40"
         >
           <Trash2 className="h-4 w-4" />
         </button>

@@ -45,7 +45,7 @@ export function Footer() {
                   key={s.label}
                   href={s.href}
                   aria-label={s.label}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-ink-200 transition-all hover:border-gold-400 hover:bg-gold-400 hover:text-ink-900"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-ink-200 transition-all hover:border-gold-400 hover:bg-gold-400 hover:text-ink-900"
                 >
                   <s.icon className="h-4 w-4" />
                 </a>
@@ -55,10 +55,10 @@ export function Footer() {
 
           <div className="lg:col-span-2">
             <h3 className="font-display text-sm font-semibold uppercase tracking-wider text-white">Quick Links</h3>
-            <ul className="mt-4 space-y-2.5 text-sm">
+            <ul className="mt-4 space-y-1 text-sm">
               {quickLinks.map((l) => (
                 <li key={l.to}>
-                  <Link to={l.to} className="text-ink-300 transition-colors hover:text-gold-400">
+                  <Link to={l.to} className="inline-block py-1.5 text-ink-300 transition-colors hover:text-gold-400">
                     {l.label}
                   </Link>
                 </li>
@@ -68,10 +68,10 @@ export function Footer() {
 
           <div className="lg:col-span-2">
             <h3 className="font-display text-sm font-semibold uppercase tracking-wider text-white">Resources</h3>
-            <ul className="mt-4 space-y-2.5 text-sm">
+            <ul className="mt-4 space-y-1 text-sm">
               {resourceLinks.map((l) => (
                 <li key={l.label}>
-                  <Link to={l.to} className="text-ink-300 transition-colors hover:text-gold-400">
+                  <Link to={l.to} className="inline-block py-1.5 text-ink-300 transition-colors hover:text-gold-400">
                     {l.label}
                   </Link>
                 </li>
@@ -116,9 +116,9 @@ export function Footer() {
         <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-xs text-ink-400 sm:flex-row">
           <p>&copy; {new Date().getFullYear()} Plateau State Property Investment &amp; Development Company. All rights reserved.</p>
           <div className="flex items-center gap-4">
-            <Link to="/about" className="transition-colors hover:text-gold-400">Privacy</Link>
-            <Link to="/about" className="transition-colors hover:text-gold-400">Terms</Link>
-            <Link to="/contact" className="transition-colors hover:text-gold-400">Support</Link>
+            <Link to="/about" className="inline-block py-1 transition-colors hover:text-gold-400">Privacy</Link>
+            <Link to="/about" className="inline-block py-1 transition-colors hover:text-gold-400">Terms</Link>
+            <Link to="/contact" className="inline-block py-1 transition-colors hover:text-gold-400">Support</Link>
           </div>
         </div>
       </div>

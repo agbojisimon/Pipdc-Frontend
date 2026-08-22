@@ -156,7 +156,7 @@ export function DevelopmentDetailsPage() {
             </motion.div>
 
             {displayImages.length > 1 && (
-              <div className="mt-3 grid grid-cols-4 gap-3">
+              <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 sm:gap-3">
                 {displayImages.map((img, idx) => (
                   <button
                     key={idx}
@@ -232,7 +232,7 @@ export function DevelopmentDetailsPage() {
             {project.units.length > 0 && (
               <div className="mt-6">
                 <CardTable title={`Available Units (${project.units.length})`}>
-                  <table className="w-full border-collapse">
+                  <table className="w-full min-w-[560px] border-collapse">
                     <thead>
                       <tr className="border-b border-ink-100 bg-ink-50/60">
                         <th className={thClass}>Unit</th>

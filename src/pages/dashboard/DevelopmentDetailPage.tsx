@@ -160,7 +160,7 @@ export function DevelopmentDetailPage() {
         ) : units.length === 0 ? (
           <TableEmpty />
         ) : (
-          <table className="w-full border-collapse">
+          <table className="w-full min-w-[680px] border-collapse">
             <thead>
               <tr className="border-b border-ink-100 bg-ink-50/60">
                 <th className={thClass}>Identifier</th>
@@ -210,7 +210,7 @@ export function DevelopmentDetailPage() {
         ) : updates.length === 0 ? (
           <TableEmpty />
         ) : (
-          <table className="w-full border-collapse">
+          <table className="w-full min-w-[600px] border-collapse">
             <thead>
               <tr className="border-b border-ink-100 bg-ink-50/60">
                 <th className={thClass}>Title</th>
