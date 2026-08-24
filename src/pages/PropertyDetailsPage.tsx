@@ -4,8 +4,9 @@ import { motion } from 'framer-motion';
 import {
   Bed, Bath, Maximize, MapPin, Calendar, Check, Phone, Mail, Share2,
   Heart, ArrowLeft, ChevronLeft, ChevronRight, BadgeCheck, Star, AlertTriangle, MessagesSquare,
+  MessageSquare,
 } from 'lucide-react';
-import { useProperty, useSimilarProperties, useAgent } from '../hooks/queries';
+import { useProperty, useSimilarProperties, useAgent, usePropertyEnquiries } from '../hooks/queries';
 import { useFavourites } from '../hooks/useFavourites';
 import { useAuth } from '../contexts/AuthContext';
 import { conversationService } from '../services/conversationService';
@@ -17,7 +18,8 @@ import { PropertyCard } from '../components/property/PropertyCard';
 import { useToast } from '../components/ui/Toast';
 import { formatPrice, formatDate } from '../utils/format';
 import { cn } from '../utils/cn';
-import { propertyStatusLabel } from '../utils/propertyStatus';
+import { propertyStatusLabel, listingTypeLabel } from '../utils/propertyStatus';
+import { primaryRole } from '../utils/roles';
 
 export function PropertyDetailsPage() {
   const { slug } = useParams();
@@ -25,12 +27,16 @@ export function PropertyDetailsPage() {
   const propertyQuery = useProperty(slug);
   const property = propertyQuery.data;
   const similarQuery = useSimilarProperties(property?.id);
-  const agentQuery = useAgent(property?.agentId);
+  const agentQuery = useAgent(property?.agentId ?? undefined);
   const { user } = useAuth();
   const [activeImage, setActiveImage] = useState(0);
   const [starting, setStarting] = useState(false);
   const { isFavourite, toggle } = useFavourites();
   const { notify } = useToast();
+
+  const userRole = primaryRole(user?.roles);
+  const showEnquiries = userRole === 'Admin' || userRole === 'Agent';
+  const enquiriesQuery = usePropertyEnquiries(showEnquiries ? property?.id : undefined);
 
   if (propertyQuery.isLoading) {
     return (
@@ -99,7 +105,8 @@ export function PropertyDetailsPage() {
                 className="h-full w-full object-cover"
               />
               <div className="absolute left-4 top-4 flex gap-2">
-                <Badge tone={property.status === 'For Sale' ? 'forest' : 'gold'}>{propertyStatusLabel(property.status)}</Badge>
+                <Badge tone={property.status === 'Available' ? 'forest' : property.status === 'Sold' ? 'neutral' : property.status === 'Pending' ? 'gold' : property.status === 'Rented' ? 'info' : 'danger'}>{propertyStatusLabel(property.status)}</Badge>
+                {property.listingType && <Badge tone="neutral">{listingTypeLabel(property.listingType)}</Badge>}
                 <Badge tone="neutral">{property.type}</Badge>
               </div>
               <div className="absolute right-4 top-4 flex gap-2">
@@ -303,6 +310,39 @@ export function PropertyDetailsPage() {
                   onToggleFavourite={toggle}
                 />
               ))}
+            </div>
+          </section>
+        )}
+
+        {/* Property Enquiries (Admin/Agent only) */}
+        {showEnquiries && enquiriesQuery.data && enquiriesQuery.data.items.length > 0 && (
+          <section className="mt-16">
+            <h2 className="heading-3">Property Enquiries</h2>
+            <div className="mt-6 rounded-2xl border border-ink-100 bg-white shadow-soft">
+              <div className="divide-y divide-ink-50">
+                {enquiriesQuery.data.items.map((eq) => (
+                  <div key={eq.id} className="flex items-start gap-4 p-5">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-forest-50 text-sm font-semibold text-forest-700">
+                      {eq.fullName.charAt(0).toUpperCase()}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <p className="text-sm font-semibold text-ink-900">{eq.fullName}</p>
+                          <p className="text-xs text-ink-400">{eq.email}{eq.phone ? ` · ${eq.phone}` : ''}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge tone={eq.status === 'Resolved' ? 'forest' : eq.status === 'Pending' ? 'gold' : 'neutral'}>
+                            {eq.status}
+                          </Badge>
+                          <span className="text-xs text-ink-400">{formatDate(eq.createdAt)}</span>
+                        </div>
+                      </div>
+                      <p className="mt-2 text-sm text-ink-600">{eq.message}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </section>
         )}

@@ -37,6 +37,7 @@ export function HomePage() {
     if (filters.location && filters.location !== 'All') params.set('location', filters.location);
     if (filters.type && filters.type !== 'All') params.set('type', filters.type);
     if (filters.status && filters.status !== 'All') params.set('status', filters.status);
+    if (filters.listingType && filters.listingType !== 'All') params.set('listingType', filters.listingType);
     if (filters.bedrooms) params.set('bedrooms', String(filters.bedrooms));
     if (filters.maxPrice) params.set('maxPrice', String(filters.maxPrice));
     window.location.href = `/properties?${params.toString()}`;

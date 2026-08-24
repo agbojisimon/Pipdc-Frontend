@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, ShieldCheck, ShieldOff, BarChart3 } from 'lucide-react';
 import { Button } from '../../ui/Button';
 import { Badge } from '../../ui/Badge';
+import { Modal } from '../../ui/Modal';
 import { ConfirmDialog } from '../../ui/ConfirmDialog';
 import { AgentForm } from '../../forms/AgentForm';
-import { useDeleteAgent } from '../../../hooks/mutations';
-import { useAgents } from '../../../hooks/queries';
+import { useDeleteAgent, useToggleAgentVerification } from '../../../hooks/mutations';
+import { useAgents, useAgentSummary } from '../../../hooks/queries';
 import { extractApiError } from '../../../services/api';
 import { useToast } from '../../ui/Toast';
 import { CardTable, RowActions, LoadingRows, TableEmpty, thClass, tdClass } from './shared';
@@ -15,10 +16,15 @@ export function AgentsSection() {
   const agentsQuery = useAgents();
   const { notify } = useToast();
   const deleteAgent = useDeleteAgent();
+  const toggleVerification = useToggleAgentVerification();
 
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Agent | null>(null);
   const [deleting, setDeleting] = useState<Agent | null>(null);
+  const [verifying, setVerifying] = useState<Agent | null>(null);
+  const [summarizing, setSummarizing] = useState<Agent | null>(null);
+
+  const summaryQuery = useAgentSummary(summarizing?.id);
 
   const agents = agentsQuery.data?.items ?? [];
 
@@ -30,6 +36,21 @@ export function AgentsSection() {
       setDeleting(null);
     } catch (err) {
       notify({ type: 'error', title: 'Could not delete agent', description: extractApiError(err) });
+    }
+  };
+
+  const confirmVerify = async () => {
+    if (!verifying) return;
+    try {
+      await toggleVerification.mutateAsync(verifying.id);
+      notify({
+        type: 'success',
+        title: verifying.verified ? 'Verification removed' : 'Agent verified',
+        description: `${verifying.fullName} is now ${verifying.verified ? 'unverified' : 'verified'}.`,
+      });
+      setVerifying(null);
+    } catch (err) {
+      notify({ type: 'error', title: 'Could not update verification', description: extractApiError(err) });
     }
   };
 
@@ -77,11 +98,29 @@ export function AgentsSection() {
                   </td>
                   <td className={tdClass}><Badge tone={a.verified ? 'forest' : 'neutral'}>{a.verified ? 'Verified' : 'Unverified'}</Badge></td>
                   <td className={tdClass}>
-                    <RowActions
-                      viewUrl={`/agents/${a.id}`}
-                      onEdit={() => { setEditing(a); setFormOpen(true); }}
-                      onDelete={() => setDeleting(a)}
-                    />
+                    <div className="flex items-center justify-end gap-1.5">
+                      <button
+                        type="button"
+                        title={a.verified ? 'Remove verification' : 'Verify agent'}
+                        onClick={() => setVerifying(a)}
+                        className="rounded-lg p-2 text-ink-400 transition-colors hover:bg-forest-50 hover:text-forest-600"
+                      >
+                        {a.verified ? <ShieldOff className="h-4 w-4" /> : <ShieldCheck className="h-4 w-4" />}
+                      </button>
+                      <button
+                        type="button"
+                        title="View summary"
+                        onClick={() => setSummarizing(a)}
+                        className="rounded-lg p-2 text-ink-400 transition-colors hover:bg-ink-100 hover:text-forest-600"
+                      >
+                        <BarChart3 className="h-4 w-4" />
+                      </button>
+                      <RowActions
+                        viewUrl={`/agents/${a.id}`}
+                        onEdit={() => { setEditing(a); setFormOpen(true); }}
+                        onDelete={() => setDeleting(a)}
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -92,6 +131,22 @@ export function AgentsSection() {
 
       <AgentForm open={formOpen} agent={editing} onClose={() => { setFormOpen(false); setEditing(null); }} />
 
+      {/* Verify / Unverify Confirm */}
+      <ConfirmDialog
+        open={Boolean(verifying)}
+        title={verifying?.verified ? 'Remove verification' : 'Verify agent'}
+        description={
+          verifying?.verified
+            ? `Remove verification from ${verifying?.fullName}? They will lose their verified badge.`
+            : `Verify ${verifying?.fullName}? They will receive a verified badge on their profile.`
+        }
+        confirmLabel={verifying?.verified ? 'Remove verification' : 'Verify agent'}
+        tone="primary"
+        loading={toggleVerification.isPending}
+        onConfirm={confirmVerify}
+        onCancel={() => setVerifying(null)}
+      />
+
       <ConfirmDialog
         open={Boolean(deleting)}
         title="Delete agent"
@@ -101,6 +156,66 @@ export function AgentsSection() {
         onConfirm={confirmDelete}
         onCancel={() => setDeleting(null)}
       />
+
+      {/* Summary Modal */}
+      <Modal open={Boolean(summarizing)} onClose={() => setSummarizing(null)} title="Agent Summary" size="md">
+        {summaryQuery.isLoading ? (
+          <div className="space-y-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="h-8 animate-pulse rounded-lg bg-ink-100" />
+            ))}
+          </div>
+        ) : summaryQuery.data ? (
+          <div className="space-y-5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-forest-50 font-display text-lg font-semibold text-forest-700">
+                {summaryQuery.data.fullName.charAt(0)}
+              </div>
+              <div>
+                <p className="font-medium text-ink-900">{summaryQuery.data.fullName}</p>
+                <p className="text-sm text-ink-400">{summaryQuery.data.email}</p>
+              </div>
+              <Badge tone={summaryQuery.data.verified ? 'forest' : 'neutral'} className="ml-auto">
+                {summaryQuery.data.verified ? 'Verified' : 'Unverified'}
+              </Badge>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="rounded-lg bg-forest-50 px-4 py-3 text-center">
+                <p className="text-2xl font-bold text-forest-700">{summaryQuery.data.propertyCount}</p>
+                <p className="mt-0.5 text-xs font-medium text-forest-600">Properties</p>
+              </div>
+              <div className="rounded-lg bg-gold-50 px-4 py-3 text-center">
+                <p className="text-2xl font-bold text-gold-700">{summaryQuery.data.enquiryCount}</p>
+                <p className="mt-0.5 text-xs font-medium text-gold-600">Enquiries</p>
+              </div>
+              <div className="rounded-lg bg-ink-50 px-4 py-3 text-center">
+                <p className="text-2xl font-bold text-ink-700">{summaryQuery.data.conversationCount}</p>
+                <p className="mt-0.5 text-xs font-medium text-ink-500">Conversations</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-ink-400">Agency</p>
+                <p className="mt-1 text-sm text-ink-900">{summaryQuery.data.agency}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-ink-400">Phone</p>
+                <p className="mt-1 text-sm text-ink-900">{summaryQuery.data.phone || '—'}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-ink-400">License</p>
+                <p className="mt-1 text-sm text-ink-900">{summaryQuery.data.licenseNumber || '—'}</p>
+              </div>
+            </div>
+            {summaryQuery.data.bio && (
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-ink-400">Bio</p>
+                <p className="mt-1 text-sm text-ink-700 leading-relaxed">{summaryQuery.data.bio}</p>
+              </div>
+            )}
+          </div>
+        ) : null}
+      </Modal>
     </>
   );
 }

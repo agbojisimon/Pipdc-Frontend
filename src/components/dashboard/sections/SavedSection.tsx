@@ -1,25 +1,47 @@
-import { Heart } from 'lucide-react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Heart, MessagesSquare } from 'lucide-react';
 import { Badge } from '../../ui/Badge';
 import { Button } from '../../ui/Button';
 import { useSavedProperties } from '../../../hooks/queries';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useFavourites } from '../../../hooks/useFavourites';
+import { conversationService } from '../../../services/conversationService';
+import { extractApiError } from '../../../services/api';
 import { formatPrice, timeAgo } from '../../../utils/format';
 import { propertyStatusLabel } from '../../../utils/propertyStatus';
+import { useToast } from '../../ui/Toast';
 import { CardTable, RowActions, LoadingRows, TableEmpty, thClass, tdClass } from './shared';
-const statusTone: Record<string, 'forest' | 'gold' | 'neutral' | 'info'> = {
-  'For Sale': 'forest',
-  'For Lease': 'gold',
+
+const statusTone: Record<string, 'forest' | 'gold' | 'neutral' | 'info' | 'danger'> = {
+  Available: 'forest',
+  Pending: 'gold',
   Sold: 'neutral',
-  'Off Market': 'info',
+  Rented: 'info',
+  Unavailable: 'danger',
 };
 
 export function SavedSection() {
+  const navigate = useNavigate();
   const savedQuery = useSavedProperties();
   const { isAuthenticated } = useAuth();
   const { toggle } = useFavourites();
+  const { notify } = useToast();
+  const [enquiringId, setEnquiringId] = useState<number | null>(null);
 
   const items = savedQuery.data?.items ?? [];
+
+  const handleEnquire = async (propertyId: number) => {
+    setEnquiringId(propertyId);
+    try {
+      const enquiry = await conversationService.resolveEnquiryForProperty(propertyId);
+      navigate(`/dashboard/messages?enquiry=${enquiry.id}`);
+    } catch (err) {
+      notify({ type: 'error', title: 'Could not start conversation', description: extractApiError(err) });
+    } finally {
+      setEnquiringId(null);
+    }
+  };
 
   return (
     <CardTable title="Saved Properties">
@@ -30,7 +52,7 @@ export function SavedSection() {
       ) : items.length === 0 ? (
         <TableEmpty />
       ) : (
-        <table className="w-full min-w-[680px] border-collapse">
+        <table className="w-full min-w-[780px] border-collapse">
           <thead>
             <tr className="border-b border-ink-100 bg-ink-50/60">
               <th className={thClass}>Property</th>
@@ -41,22 +63,31 @@ export function SavedSection() {
             </tr>
           </thead>
           <tbody className="divide-y divide-ink-50">
-            {items.map((p) => (
-              <tr key={p.id} className="transition-colors hover:bg-ink-50/60">
+            {items.map((sp) => (
+              <tr key={sp.property.id} className="transition-colors hover:bg-ink-50/60">
                 <td className={tdClass}>
-                  <span className="font-medium text-ink-900">{p.title}</span>
-                  <span className="block text-xs text-ink-400">{p.address}, {p.city}</span>
+                  <span className="font-medium text-ink-900">{sp.property.title}</span>
+                  <span className="block text-xs text-ink-400">{sp.property.address}, {sp.property.city}</span>
                 </td>
-                <td className={tdClass}>{formatPrice(p.price, p.currency)}</td>
-                <td className={tdClass}><Badge tone={statusTone[p.status] ?? 'neutral'}>{propertyStatusLabel(p.status)}</Badge></td>
-                <td className={tdClass}>{timeAgo(p.createdAt)}</td>
+                <td className={tdClass}>{formatPrice(sp.property.price, sp.property.currency)}</td>
+                <td className={tdClass}><Badge tone={statusTone[sp.property.status] ?? 'neutral'}>{propertyStatusLabel(sp.property.status)}</Badge></td>
+                <td className={tdClass}>{timeAgo(sp.savedAt)}</td>
                 <td className={tdClass}>
-                  <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-end sm:gap-1.5">
-                    <RowActions viewUrl={`/properties/${p.slug}`} />
+                  <div className="flex items-center justify-end gap-1.5">
+                    <RowActions viewUrl={`/properties/${sp.property.slug}`} />
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => toggle(p.id)}
+                      loading={enquiringId === sp.property.id}
+                      onClick={() => handleEnquire(sp.property.id)}
+                      leftIcon={<MessagesSquare className="h-3.5 w-3.5" />}
+                    >
+                      Enquire
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggle(sp.property.id)}
                       leftIcon={<Heart className="h-3.5 w-3.5 fill-red-500 text-red-500" />}
                       className="text-red-600"
                     >

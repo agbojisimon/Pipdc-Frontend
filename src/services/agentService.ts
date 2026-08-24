@@ -1,5 +1,5 @@
 import { api } from './api';
-import type { Agent, Paginated } from '../types';
+import type { Agent, AgentSummary, Paginated } from '../types';
 
 export const agentService = {
   async list(params?: { keyword?: string; page?: number; pageSize?: number }): Promise<Paginated<Agent>> {
@@ -24,5 +24,13 @@ export const agentService = {
   },
   async remove(id: number): Promise<void> {
     await api.delete(`/agents/${id}`);
+  },
+  async toggleVerification(id: number): Promise<Agent> {
+    const { data } = await api.put<Agent>(`/agents/${id}/verify`);
+    return data;
+  },
+  async getSummary(id: number): Promise<AgentSummary> {
+    const { data } = await api.get<AgentSummary>(`/agents/${id}/summary`);
+    return data;
   },
 };

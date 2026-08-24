@@ -6,11 +6,12 @@ import { formatPrice, timeAgo } from '../../utils/format';
 import { propertyStatusLabel } from '../../utils/propertyStatus';
 import type { Property } from '../../types';
 
-const statusTone: Record<string, 'forest' | 'gold' | 'neutral' | 'info'> = {
-  'For Sale': 'forest',
-  'For Lease': 'gold',
+const statusTone: Record<string, 'forest' | 'gold' | 'neutral' | 'info' | 'danger'> = {
+  Available: 'forest',
+  Pending: 'gold',
   Sold: 'neutral',
-  'Off Market': 'info',
+  Rented: 'info',
+  Unavailable: 'danger',
 };
 
 interface PropertyListProps {

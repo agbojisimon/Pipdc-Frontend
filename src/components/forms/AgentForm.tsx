@@ -1,18 +1,19 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 import { Input, Textarea } from '../ui/Input';
+import { ImageUpload } from '../ui/ImageUpload';
 import { useCreateAgent, useUpdateAgent } from '../../hooks/mutations';
 import { useToast } from '../ui/Toast';
 import { extractApiError } from '../../services/api';
 import type { Agent } from '../../types';
+import type { UploadResult } from '../../services/imageService';
 
 const schema = z.object({
   title: z.string().optional(),
-  photoUrl: z.string().optional(),
   bio: z.string().optional(),
   agencyName: z.string().min(2, 'Agency name is required'),
   licenseNumber: z.string().optional(),
@@ -37,17 +38,20 @@ export function AgentForm({ open, agent, onClose }: AgentFormProps) {
   const createAgent = useCreateAgent();
   const updateAgent = useUpdateAgent();
   const isEditing = Boolean(agent);
+  const [photo, setPhoto] = useState<UploadResult[]>([]);
 
   const { register, handleSubmit, reset, setError, formState: { errors, isSubmitting } } = useForm<AgentFormValues>({
     resolver: zodResolver(schema),
   });
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      setPhoto(null);
+      return;
+    }
     if (agent) {
       reset({
         title: agent.title ?? '',
-        photoUrl: agent.photo ?? '',
         bio: agent.bio ?? '',
         agencyName: agent.agency,
         licenseNumber: agent.licenseNumber ?? '',
@@ -58,10 +62,14 @@ export function AgentForm({ open, agent, onClose }: AgentFormProps) {
         lastName: agent.lastName,
         verified: agent.verified,
       });
+      if (agent.photo) {
+        setPhoto([{ url: agent.photo, publicId: agent.photoPublicId ?? '' }]);
+      } else {
+        setPhoto([]);
+      }
     } else {
       reset({
         title: 'Agent',
-        photoUrl: '',
         bio: '',
         agencyName: '',
         licenseNumber: '',
@@ -72,6 +80,7 @@ export function AgentForm({ open, agent, onClose }: AgentFormProps) {
         lastName: '',
         verified: false,
       });
+      setPhoto([]);
     }
   }, [open, agent, reset]);
 
@@ -89,7 +98,8 @@ export function AgentForm({ open, agent, onClose }: AgentFormProps) {
 
     const payload: Record<string, unknown> = {
       title: data.title?.trim() || undefined,
-      photoUrl: data.photoUrl?.trim() || undefined,
+      photoUrl: photo[0]?.url || undefined,
+      photoPublicId: photo[0]?.publicId || undefined,
       bio: data.bio?.trim() || undefined,
       agencyName: data.agencyName,
       licenseNumber: data.licenseNumber?.trim() || undefined,
@@ -151,7 +161,10 @@ export function AgentForm({ open, agent, onClose }: AgentFormProps) {
         </div>
 
         <div className="grid items-start gap-4 sm:grid-cols-2">
-          <Input label="Profile photo URL" placeholder="https://..." error={errors.photoUrl?.message} {...register('photoUrl')} />
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-ink-700">Profile Photo</label>
+            <ImageUpload folder="agents" value={photo} onChange={setPhoto} maxFiles={1} />
+          </div>
           <Textarea label="Bio" placeholder="Short professional summary." className="min-h-[100px]" error={errors.bio?.message} {...register('bio')} />
         </div>
 

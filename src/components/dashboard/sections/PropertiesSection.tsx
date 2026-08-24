@@ -5,7 +5,12 @@ import { Button } from '../../ui/Button';
 import { Badge } from '../../ui/Badge';
 import { ConfirmDialog } from '../../ui/ConfirmDialog';
 import { PropertyForm } from '../../forms/PropertyForm';
-import { useDeleteProperty, useSetFeatured } from '../../../hooks/mutations';
+import {
+  useDeleteProperty,
+  useSetFeatured,
+  useChangePropertyStatus,
+  useAssignPropertyAgent,
+} from '../../../hooks/mutations';
 import { useProperties, useAgents, useMyAgent } from '../../../hooks/queries';
 import { useAuth } from '../../../contexts/AuthContext';
 import { formatPrice, timeAgo } from '../../../utils/format';
@@ -13,15 +18,16 @@ import { extractApiError } from '../../../services/api';
 import { useToast } from '../../ui/Toast';
 import { primaryRole } from '../../../utils/roles';
 import { cn } from '../../../utils/cn';
-import { propertyStatusLabel } from '../../../utils/propertyStatus';
+import { propertyStatusLabel, PROPERTY_STATUSES } from '../../../utils/propertyStatus';
 import { CardTable, RowActions, LoadingRows, TableEmpty, thClass, tdClass } from './shared';
 import type { Property } from '../../../types';
 
-const statusTone: Record<string, 'forest' | 'gold' | 'neutral' | 'info'> = {
-  'For Sale': 'forest',
-  'For Lease': 'gold',
+const statusTone: Record<string, 'forest' | 'gold' | 'neutral' | 'info' | 'danger'> = {
+  Available: 'forest',
+  Pending: 'gold',
   Sold: 'neutral',
-  'Off Market': 'info',
+  Rented: 'info',
+  Unavailable: 'danger',
 };
 
 export function PropertiesSection() {
@@ -38,6 +44,8 @@ export function PropertiesSection() {
   const { notify } = useToast();
   const deleteProperty = useDeleteProperty();
   const setFeatured = useSetFeatured();
+  const changeStatus = useChangePropertyStatus();
+  const assignAgent = useAssignPropertyAgent();
 
   const role = primaryRole(user?.roles);
   const myAgentQuery = useMyAgent(role === 'Agent');
@@ -90,6 +98,28 @@ export function PropertiesSection() {
     }
   };
 
+  const handleStatusChange = async (p: Property, newStatus: string) => {
+    if (newStatus === p.status) return;
+    try {
+      await changeStatus.mutateAsync({ id: p.id, status: newStatus });
+      notify({ type: 'success', title: 'Status updated', description: `"${p.title}" is now ${propertyStatusLabel(newStatus as any)}.` });
+    } catch (err) {
+      notify({ type: 'error', title: 'Could not update status', description: extractApiError(err) });
+    }
+  };
+
+  const handleAgentChange = async (p: Property, newAgentId: string) => {
+    const val = newAgentId === '' ? null : Number(newAgentId);
+    if (val === p.agentId) return;
+    try {
+      await assignAgent.mutateAsync({ id: p.id, agentId: val });
+      const agentName = val ? agents.find((a) => a.id === val)?.fullName ?? 'agent' : 'nobody';
+      notify({ type: 'success', title: 'Agent reassigned', description: `"${p.title}" assigned to ${agentName}.` });
+    } catch (err) {
+      notify({ type: 'error', title: 'Could not reassign agent', description: extractApiError(err) });
+    }
+  };
+
   const agents = agentsQuery.data?.items ?? [];
   const properties = propertiesQuery.data?.items ?? [];
 
@@ -108,11 +138,11 @@ export function PropertiesSection() {
         ) : properties.length === 0 ? (
           <TableEmpty />
         ) : (
-          <table className="w-full min-w-[780px] border-collapse">
+          <table className="w-full min-w-[900px] border-collapse">
             <thead>
               <tr className="border-b border-ink-100 bg-ink-50/60">
                 <th className={thClass}>Title</th>
-                <th className={thClass}>Agent</th>
+                {isAdmin && <th className={thClass}>Agent</th>}
                 <th className={thClass}>Price</th>
                 <th className={thClass}>Status</th>
                 <th className={thClass}>Enquiries</th>
@@ -128,10 +158,34 @@ export function PropertiesSection() {
                     <span className="font-medium text-ink-900">{p.title}</span>
                     <span className="block text-xs text-ink-400">{p.address}, {p.city}</span>
                   </td>
-                  <td className={tdClass}>{p.agentName}</td>
+                  {isAdmin && (
+                    <td className={tdClass}>
+                      <select
+                        value={p.agentId ?? ''}
+                        onChange={(e) => handleAgentChange(p, e.target.value)}
+                        className="rounded-lg border border-ink-200 bg-white px-2 py-1 text-xs text-ink-700 transition-colors hover:border-ink-300 focus:border-forest-500 focus:outline-none focus:ring-1 focus:ring-forest-500/40"
+                      >
+                        <option value="">Unassigned</option>
+                        {agents.map((a) => (
+                          <option key={a.id} value={a.id}>{a.fullName}</option>
+                        ))}
+                      </select>
+                    </td>
+                  )}
                   <td className={tdClass}>{formatPrice(p.price, p.currency)}</td>
                   <td className={tdClass}>
-                    <Badge tone={statusTone[p.status] ?? 'neutral'}>{propertyStatusLabel(p.status)}</Badge>
+                    <select
+                      value={p.status}
+                      onChange={(e) => handleStatusChange(p, e.target.value)}
+                      className={cn(
+                        'rounded-lg border border-ink-200 bg-white px-2 py-1 text-xs font-medium transition-colors hover:border-ink-300 focus:border-forest-500 focus:outline-none focus:ring-1 focus:ring-forest-500/40',
+                        `text-${statusTone[p.status] ?? 'neutral'}-700`,
+                      )}
+                    >
+                      {PROPERTY_STATUSES.map((s) => (
+                        <option key={s} value={s}>{propertyStatusLabel(s)}</option>
+                      ))}
+                    </select>
                   </td>
                   <td className={tdClass}>
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-100 px-2.5 py-1 text-xs font-semibold text-ink-700">

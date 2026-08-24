@@ -37,4 +37,16 @@ export const propertyService = {
   async remove(id: number): Promise<void> {
     await api.delete(`/properties/${id}`);
   },
+  async removeImage(id: number, publicId: string): Promise<void> {
+    await api.delete(`/properties/${id}/images/${encodeURIComponent(publicId)}`);
+  },
+  async changeStatus(id: number, status: string): Promise<void> {
+    await api.patch(`/properties/${id}/status`, { status });
+  },
+  async changeListingType(id: number, listingType: string): Promise<void> {
+    await api.patch(`/properties/${id}/listing-type`, { listingType });
+  },
+  async assignAgent(id: number, agentId: number | null): Promise<void> {
+    await api.put(`/properties/${id}/agent`, { agentId });
+  },
 };

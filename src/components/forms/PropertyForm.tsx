@@ -1,16 +1,18 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 import { Input, Select, Textarea } from '../ui/Input';
+import { ImageUpload } from '../ui/ImageUpload';
 import { useCreateProperty, useUpdateProperty } from '../../hooks/mutations';
 import { useToast } from '../ui/Toast';
 import { extractApiError } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { propertyStatusLabel } from '../../utils/propertyStatus';
 import type { Property, PropertyType } from '../../types';
+import type { UploadResult } from '../../services/imageService';
 
 const propertyTypes: PropertyType[] = [
   'Detached House',
@@ -28,7 +30,8 @@ const propertyTypes: PropertyType[] = [
   'Mixed',
 ];
 
-const statuses = ['For Sale', 'For Lease', 'Sold', 'Off Market'] as const;
+const statuses = ['Available', 'Pending', 'Sold', 'Rented', 'Unavailable'] as const;
+const listingTypes = ['ForSale', 'ForLease'] as const;
 
 const optionalNumber = z.number({ message: 'Enter a valid number' }).int().min(0).optional();
 const optionalDecimal = z.number({ message: 'Enter a valid number' }).min(0).optional();
@@ -41,6 +44,7 @@ const schema = z.object({
   currency: z.string().min(1, 'Currency is required'),
   period: z.string().optional(),
   status: z.enum(statuses),
+  listingType: z.enum(listingTypes),
   type: z.string().min(1, 'Type is required'),
   bedrooms: optionalNumber,
   bathrooms: optionalNumber,
@@ -55,7 +59,6 @@ const schema = z.object({
   latitude: z.number({ message: 'Enter a valid number' }).min(-90).max(90).optional(),
   longitude: z.number({ message: 'Enter a valid number' }).min(-180).max(180).optional(),
   amenities: z.string().optional(),
-  images: z.string().optional(),
   featured: z.boolean(),
   agentId: z.union([z.literal(''), z.number({ message: 'Select an agent' }).int().positive()]).optional(),
 });
@@ -79,13 +82,17 @@ export function PropertyForm({ open, property, agents, onClose }: PropertyFormPr
   const createProperty = useCreateProperty();
   const updateProperty = useUpdateProperty();
   const isEditing = Boolean(property);
+  const [images, setImages] = useState<UploadResult[]>([]);
 
   const { register, handleSubmit, reset, setError, formState: { errors, isSubmitting } } = useForm<PropertyFormValues>({
     resolver: zodResolver(schema),
   });
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      setImages([]);
+      return;
+    }
     if (property) {
       reset({
         title: property.title,
@@ -95,6 +102,7 @@ export function PropertyForm({ open, property, agents, onClose }: PropertyFormPr
         currency: property.currency,
         period: property.period ?? '',
         status: property.status,
+        listingType: property.listingType || 'ForSale',
         type: property.type,
         bedrooms: property.bedrooms ?? undefined,
         bathrooms: property.bathrooms ?? undefined,
@@ -109,10 +117,10 @@ export function PropertyForm({ open, property, agents, onClose }: PropertyFormPr
         latitude: property.latitude ?? undefined,
         longitude: property.longitude ?? undefined,
         amenities: (property.amenities ?? []).join('\n'),
-        images: (property.images ?? []).join('\n'),
         featured: property.featured,
         agentId: property.agentId,
       });
+      setImages((property.images ?? []).map((url, i) => ({ url, publicId: `existing-${i}` })));
     } else {
       reset({
         title: '',
@@ -121,7 +129,8 @@ export function PropertyForm({ open, property, agents, onClose }: PropertyFormPr
         price: undefined,
         currency: 'NGN',
         period: '',
-        status: 'For Sale',
+        status: 'Available',
+        listingType: 'ForSale',
         type: 'Apartment',
         bedrooms: undefined,
         bathrooms: undefined,
@@ -136,10 +145,10 @@ export function PropertyForm({ open, property, agents, onClose }: PropertyFormPr
         latitude: undefined,
         longitude: undefined,
         amenities: '',
-        images: '',
         featured: false,
         agentId: '',
       });
+      setImages([]);
     }
   }, [open, property, reset]);
 
@@ -164,6 +173,7 @@ export function PropertyForm({ open, property, agents, onClose }: PropertyFormPr
       currency: data.currency,
       period: data.period?.trim() || undefined,
       status: data.status,
+      listingType: data.listingType,
       type: data.type,
       bedrooms: data.bedrooms,
       bathrooms: data.bathrooms,
@@ -178,7 +188,7 @@ export function PropertyForm({ open, property, agents, onClose }: PropertyFormPr
       latitude: data.latitude,
       longitude: data.longitude,
       amenities: parseList(data.amenities),
-      images: parseList(data.images),
+      images: images.map((img) => img.url),
       featured: isAdmin ? data.featured : false,
       agentId,
     };
@@ -218,12 +228,16 @@ export function PropertyForm({ open, property, agents, onClose }: PropertyFormPr
           </Select>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-4">
           <Input label="Period (for rentals)" placeholder="e.g. Per annum" error={errors.period?.message} {...register('period')} />
           <Select label="Status" error={errors.status?.message} {...register('status')}>
             {statuses.map((s) => (
               <option key={s} value={s}>{propertyStatusLabel(s)}</option>
             ))}
+          </Select>
+          <Select label="Listing type" error={errors.listingType?.message} {...register('listingType')}>
+            <option value="ForSale">For Sale</option>
+            <option value="ForLease">For Rent</option>
           </Select>
           <Select label="Type" error={errors.type?.message} {...register('type')}>
             {propertyTypes.map((t) => (
@@ -261,7 +275,10 @@ export function PropertyForm({ open, property, agents, onClose }: PropertyFormPr
 
         <div className="grid gap-4 sm:grid-cols-2">
           <Textarea label="Amenities (one per line)" placeholder={'Air conditioning\nGarage\nSwimming pool'} className="min-h-[80px]" error={errors.amenities?.message} {...register('amenities')} />
-          <Textarea label="Images (one image URL per line)" placeholder={'https://.../photo1.jpg\nhttps://.../photo2.jpg'} className="min-h-[80px]" error={errors.images?.message} {...register('images')} />
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-ink-700">Property Images</label>
+            <ImageUpload folder="properties" value={images} onChange={setImages} maxFiles={10} />
+          </div>
         </div>
 
         {isAdmin && (

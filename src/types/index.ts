@@ -1,6 +1,6 @@
 // Types mirror the ASP.NET Core backend DTOs under /api.
 
-export type PropertyStatus = 'For Sale' | 'For Lease' | 'Sold' | 'Off Market';
+export type PropertyStatus = 'Available' | 'Pending' | 'Sold' | 'Rented' | 'Unavailable';
 
 export type PropertyType =
   | 'Detached House'
@@ -22,6 +22,7 @@ export interface Agent {
   bio: string | null;
   title: string | null;
   photo: string | null;
+  photoPublicId: string | null;
   agency: string;
   licenseNumber: string | null;
   phone: string;
@@ -63,13 +64,18 @@ export interface Property {
   coverImage?: string | null;
   amenities: string[];
   featured: boolean;
-  agentId: number;
-  agentName: string;
+  agentId: number | null;
+  agentName: string | null;
   agentPhoto?: string | null;
   isSaved: boolean;
   enquiryCount: number;
   createdAt: string;
   updatedAt?: string | null;
+}
+
+export interface SavedProperty {
+  property: Property;
+  savedAt: string;
 }
 
 export interface BlogPost {
@@ -79,6 +85,7 @@ export interface BlogPost {
   content: string;
   excerpt: string | null;
   coverImageUrl: string | null;
+  coverImagePublicId: string | null;
   status: string;
   publishedAt: string | null;
   createdAt: string;
@@ -99,8 +106,8 @@ export interface Enquiry {
   propertyTitle: string;
   propertySlug: string;
   userId: string | null;
-  agentId: number;
-  agentName: string;
+  agentId: number | null;
+  agentName: string | null;
   agentReadAt: string | null;
   isRead: boolean;
   createdAt: string;
@@ -122,9 +129,9 @@ export interface AgentNotifyResult {
   clientEmail: string;
   clientPhone: string | null;
   clientMessage: string;
-  agentId: number;
-  agentName: string;
-  agentEmail: string;
+  agentId: number | null;
+  agentName: string | null;
+  agentEmail: string | null;
   propertyId: number;
   propertyTitle: string;
   propertySlug: string;
@@ -138,7 +145,7 @@ export interface ConversationClient {
 }
 
 export interface ConversationAgent {
-  agentId: number;
+  agentId: number | null;
   fullName: string;
   agencyName: string;
   photoUrl: string | null;
@@ -253,6 +260,7 @@ export interface PropertyFilters {
   location?: string;
   type?: string;
   status?: string;
+  listingType?: string;
   minPrice?: number;
   maxPrice?: number;
   bedrooms?: number;
@@ -260,6 +268,38 @@ export interface PropertyFilters {
   agentId?: number;
   page?: number;
   pageSize?: number;
+}
+
+export interface UserDetail {
+  id: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  email: string;
+  phoneNumber: string | null;
+  roles: string[];
+  status: 'Active' | 'Suspended';
+  createdAt: string;
+  agentId: number | null;
+  agentLicenseNumber: string | null;
+  agentAgencyName: string | null;
+  agentIsVerified: boolean | null;
+}
+
+export interface AgentSummary {
+  id: number;
+  fullName: string;
+  email: string;
+  agency: string;
+  phone: string;
+  licenseNumber: string | null;
+  bio: string | null;
+  photo: string | null;
+  photoPublicId: string | null;
+  verified: boolean;
+  propertyCount: number;
+  enquiryCount: number;
+  conversationCount: number;
 }
 
 export interface Paginated<T> {

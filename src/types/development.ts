@@ -60,6 +60,7 @@ export interface DevelopmentUpdate {
   progressPercentage: number | null;
   updateDate: string;
   imageUrls: string[];
+  imagePublicIds: string[];
   createdAt: string;
   updatedAt: string | null;
 }

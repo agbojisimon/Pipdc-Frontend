@@ -5,7 +5,7 @@ import type { Property } from '../../types';
 import { formatPrice, formatCompact } from '../../utils/format';
 import { Badge } from '../ui/Badge';
 import { cn } from '../../utils/cn';
-import { propertyStatusLabel } from '../../utils/propertyStatus';
+import { propertyStatusLabel, listingTypeLabel } from '../../utils/propertyStatus';
 
 interface PropertyCardProps {
   property: Property;
@@ -15,11 +15,12 @@ interface PropertyCardProps {
   index?: number;
 }
 
-const statusTone: Record<Property['status'], 'forest' | 'gold' | 'neutral' | 'info'> = {
-  'For Sale': 'forest',
-  'For Lease': 'gold',
+const statusTone: Record<Property['status'], 'forest' | 'gold' | 'neutral' | 'info' | 'danger'> = {
+  Available: 'forest',
+  Pending: 'gold',
   Sold: 'neutral',
-  'Off Market': 'info',
+  Rented: 'info',
+  Unavailable: 'danger',
 };
 
 export function PropertyCard({ property, agentName, isFavourite, onToggleFavourite, index = 0 }: PropertyCardProps) {
@@ -41,9 +42,16 @@ export function PropertyCard({ property, agentName, isFavourite, onToggleFavouri
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
         <div className="absolute inset-x-0 top-0 flex items-start justify-between p-3">
-          <Badge tone={statusTone[property.status]} className="backdrop-blur-sm">
-            {propertyStatusLabel(property.status)}
-          </Badge>
+          <div className="flex gap-2">
+            <Badge tone={statusTone[property.status]} className="backdrop-blur-sm">
+              {propertyStatusLabel(property.status)}
+            </Badge>
+            {property.listingType && (
+              <Badge tone="gold" className="backdrop-blur-sm">
+                {listingTypeLabel(property.listingType)}
+              </Badge>
+            )}
+          </div>
           <button
             onClick={() => onToggleFavourite?.(property.id)}
             aria-label={isFavourite ? 'Remove from favourites' : 'Add to favourites'}
