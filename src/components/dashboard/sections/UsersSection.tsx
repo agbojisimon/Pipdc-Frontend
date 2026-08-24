@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { UserPlus, UserMinus } from 'lucide-react';
+import { UserPlus, UserMinus, Eye, ShieldCheck, ShieldOff } from 'lucide-react';
 import { Badge } from '../../ui/Badge';
+import { Button } from '../../ui/Button';
+import { Modal } from '../../ui/Modal';
 import { ConfirmDialog } from '../../ui/ConfirmDialog';
-import { useAddRole, useRemoveRole } from '../../../hooks/mutations';
-import { useUsers, useAgentProperties } from '../../../hooks/queries';
+import { useAddRole, useRemoveRole, useDeactivateUser, useActivateUser } from '../../../hooks/mutations';
+import { useUsers, useAgentProperties, useUser } from '../../../hooks/queries';
 import { useAuth } from '../../../contexts/AuthContext';
 import { formatDate } from '../../../utils/format';
 import { extractApiError } from '../../../services/api';
@@ -17,9 +19,16 @@ export function UsersSection() {
   const { notify } = useToast();
   const addRole = useAddRole();
   const removeRole = useRemoveRole();
+  const deactivateUser = useDeactivateUser();
+  const activateUser = useActivateUser();
 
   const [promoting, setPromoting] = useState<User | null>(null);
   const [demoting, setDemoting] = useState<User | null>(null);
+  const [viewing, setViewing] = useState<User | null>(null);
+  const [deactivating, setDeactivating] = useState<User | null>(null);
+  const [activating, setActivating] = useState<User | null>(null);
+
+  const detailQuery = useUser(viewing?.id);
 
   const propertyQuery = useAgentProperties(demoting?.agentId ?? undefined);
   const affectedCount = propertyQuery.data?.totalCount ?? 0;
@@ -45,6 +54,28 @@ export function UsersSection() {
       setDemoting(null);
     } catch (err) {
       notify({ type: 'error', title: 'Could not remove Agent role', description: extractApiError(err) });
+    }
+  };
+
+  const confirmDeactivate = async () => {
+    if (!deactivating) return;
+    try {
+      await deactivateUser.mutateAsync(deactivating.id);
+      notify({ type: 'success', title: 'User deactivated', description: `${deactivating.fullName} has been deactivated.` });
+      setDeactivating(null);
+    } catch (err) {
+      notify({ type: 'error', title: 'Could not deactivate user', description: extractApiError(err) });
+    }
+  };
+
+  const confirmActivate = async () => {
+    if (!activating) return;
+    try {
+      await activateUser.mutateAsync(activating.id);
+      notify({ type: 'success', title: 'User activated', description: `${activating.fullName} has been activated.` });
+      setActivating(null);
+    } catch (err) {
+      notify({ type: 'error', title: 'Could not activate user', description: extractApiError(err) });
     }
   };
 
@@ -89,6 +120,34 @@ export function UsersSection() {
                     <td className={tdClass}>{formatDate(u.createdAt)}</td>
                     <td className={tdClass}>
                       <div className="flex items-center justify-end gap-1 sm:gap-1.5">
+                        <button
+                          type="button"
+                          title="View profile"
+                          onClick={() => setViewing(u)}
+                          className="rounded-lg p-2 text-ink-400 transition-colors hover:bg-ink-100 hover:text-forest-600"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </button>
+                        {!isAdmin && !isAgent && !isSelf(u) && u.status === 'Active' && (
+                          <button
+                            type="button"
+                            title="Deactivate user"
+                            onClick={() => setDeactivating(u)}
+                            className="rounded-lg p-2 text-ink-400 transition-colors hover:bg-red-50 hover:text-red-600"
+                          >
+                            <ShieldOff className="h-4 w-4" />
+                          </button>
+                        )}
+                        {!isAdmin && !isSelf(u) && u.status === 'Suspended' && (
+                          <button
+                            type="button"
+                            title="Activate user"
+                            onClick={() => setActivating(u)}
+                            className="rounded-lg p-2 text-ink-400 transition-colors hover:bg-forest-50 hover:text-forest-600"
+                          >
+                            <ShieldCheck className="h-4 w-4" />
+                          </button>
+                        )}
                         {!isAdmin && !isAgent && (
                           <button
                             type="button"
@@ -119,6 +178,76 @@ export function UsersSection() {
         )}
       </CardTable>
 
+      {/* View Profile Modal */}
+      <Modal open={Boolean(viewing)} onClose={() => setViewing(null)} title="User Profile" size="md">
+        {detailQuery.isLoading ? (
+          <div className="space-y-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-8 animate-pulse rounded-lg bg-ink-100" />
+            ))}
+          </div>
+        ) : detailQuery.data ? (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-ink-400">Full Name</p>
+                <p className="mt-1 text-sm text-ink-900">{detailQuery.data.fullName}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-ink-400">Email</p>
+                <p className="mt-1 text-sm text-ink-900">{detailQuery.data.email}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-ink-400">Phone</p>
+                <p className="mt-1 text-sm text-ink-900">{detailQuery.data.phoneNumber || '—'}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-ink-400">Joined</p>
+                <p className="mt-1 text-sm text-ink-900">{formatDate(detailQuery.data.createdAt)}</p>
+              </div>
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-ink-400">Roles</p>
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
+                {detailQuery.data.roles.map((r) => (
+                  <Badge key={r} tone={r === 'Admin' ? 'forest' : r === 'Agent' ? 'gold' : 'neutral'}>{r}</Badge>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center justify-between rounded-lg bg-ink-50 px-4 py-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-ink-400">Account Status</p>
+                <p className="mt-0.5 text-sm font-medium text-ink-900">{detailQuery.data.status}</p>
+              </div>
+              <Badge tone={detailQuery.data.status === 'Active' ? 'forest' : 'neutral'}>
+                {detailQuery.data.status}
+              </Badge>
+            </div>
+            {detailQuery.data.agentId && (
+              <div className="rounded-lg bg-gold-50 px-4 py-3">
+                <p className="text-xs font-semibold uppercase tracking-wider text-gold-600">Agent Profile</p>
+                <div className="mt-1.5 grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <span className="text-gold-600">Agency:</span>{' '}
+                    <span className="text-gold-800">{detailQuery.data.agentAgencyName || '—'}</span>
+                  </div>
+                  <div>
+                    <span className="text-gold-600">License:</span>{' '}
+                    <span className="text-gold-800">{detailQuery.data.agentLicenseNumber || '—'}</span>
+                  </div>
+                  <div>
+                    <span className="text-gold-600">Verified:</span>{' '}
+                    <Badge tone={detailQuery.data.agentIsVerified ? 'forest' : 'neutral'}>
+                      {detailQuery.data.agentIsVerified ? 'Yes' : 'No'}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : null}
+      </Modal>
+
       <ConfirmDialog
         open={Boolean(promoting)}
         title="Promote user to Agent"
@@ -146,6 +275,27 @@ export function UsersSection() {
         loading={removeRole.isPending}
         onConfirm={confirmDemote}
         onCancel={() => setDemoting(null)}
+      />
+
+      <ConfirmDialog
+        open={Boolean(deactivating)}
+        title="Deactivate user"
+        description={`Are you sure you want to deactivate ${deactivating?.fullName}? They will be unable to sign in until reactivated.`}
+        confirmLabel="Deactivate"
+        loading={deactivateUser.isPending}
+        onConfirm={confirmDeactivate}
+        onCancel={() => setDeactivating(null)}
+      />
+
+      <ConfirmDialog
+        open={Boolean(activating)}
+        title="Activate user"
+        description={`Are you sure you want to activate ${activating?.fullName}? They will be able to sign in again.`}
+        confirmLabel="Activate"
+        tone="primary"
+        loading={activateUser.isPending}
+        onConfirm={confirmActivate}
+        onCancel={() => setActivating(null)}
       />
     </>
   );

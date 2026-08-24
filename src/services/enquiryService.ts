@@ -37,6 +37,10 @@ export const enquiryService = {
     const { data } = await api.get<Paginated<Enquiry>>(`/enquiries/agents/${agentId}`, { params });
     return data;
   },
+  async byProperty(propertyId: number, params?: Record<string, unknown>): Promise<Paginated<Enquiry>> {
+    const { data } = await api.get<Paginated<Enquiry>>(`/enquiries/property/${propertyId}`, { params });
+    return data;
+  },
   async notifyAgent(id: number): Promise<AgentNotifyResult> {
     const { data } = await api.post<AgentNotifyResult>(`/enquiries/${id}/notify-agent`);
     return data;

@@ -27,6 +27,7 @@ export function PropertiesPage() {
       location: searchParams.get('location') ?? undefined,
       type: searchParams.get('type') ?? undefined,
       status: searchParams.get('status') ?? undefined,
+      listingType: searchParams.get('listingType') ?? undefined,
       bedrooms: searchParams.get('bedrooms') ? Number(searchParams.get('bedrooms')) : undefined,
       maxPrice: searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : undefined,
       query: searchParams.get('q') ?? undefined,
@@ -46,6 +47,7 @@ export function PropertiesPage() {
     if (next.location && next.location !== 'All') params.set('location', next.location);
     if (next.type && next.type !== 'All') params.set('type', next.type);
     if (next.status && next.status !== 'All') params.set('status', next.status);
+    if (next.listingType && next.listingType !== 'All') params.set('listingType', next.listingType);
     if (next.bedrooms) params.set('bedrooms', String(next.bedrooms));
     if (next.maxPrice) params.set('maxPrice', String(next.maxPrice));
     if (next.query) params.set('q', next.query);

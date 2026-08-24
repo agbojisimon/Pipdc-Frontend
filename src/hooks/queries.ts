@@ -27,10 +27,13 @@ export const queryKeys = {
   myEnquiries: ['enquiries', 'mine'] as const,
   agentEnquirySummaries: ['enquiries', 'agents', 'summary'] as const,
   agentEnquiries: (agentId: number) => ['enquiries', 'agents', agentId] as const,
+  propertyEnquiries: (propertyId: number) => ['enquiries', 'property', propertyId] as const,
   blogPosts: ['blog'] as const,
   blogPostsAll: ['blog', 'all'] as const,
   blogPost: (slug: string) => ['blog', 'slug', slug] as const,
   users: ['users'] as const,
+  user: (id: string) => ['users', id] as const,
+  agentSummary: (id: number) => ['agents', id, 'summary'] as const,
   savedIds: ['saved-properties', 'ids'] as const,
   savedProperties: ['saved-properties'] as const,
   dashboard: (role: string) => ['dashboard', role] as const,
@@ -135,6 +138,14 @@ export function useAgentEnquiries(agentId: number | undefined) {
   });
 }
 
+export function usePropertyEnquiries(propertyId: number | undefined) {
+  return useQuery({
+    queryKey: queryKeys.propertyEnquiries(propertyId ?? 0),
+    queryFn: () => enquiryService.byProperty(propertyId!, { pageSize: 100 }),
+    enabled: Boolean(propertyId),
+  });
+}
+
 export function useBlogPosts() {
   return useQuery({ queryKey: queryKeys.blogPosts, queryFn: blogService.list });
 }
@@ -165,6 +176,22 @@ export function useUsers() {
   return useQuery({
     queryKey: queryKeys.users,
     queryFn: () => userService.list({ pageSize: 100 }),
+  });
+}
+
+export function useUser(id: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.user(id ?? ''),
+    queryFn: () => userService.getById(id!),
+    enabled: Boolean(id),
+  });
+}
+
+export function useAgentSummary(id: number | undefined) {
+  return useQuery({
+    queryKey: queryKeys.agentSummary(id ?? 0),
+    queryFn: () => agentService.getSummary(id!),
+    enabled: Boolean(id),
   });
 }
 

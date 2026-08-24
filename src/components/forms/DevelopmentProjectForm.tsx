@@ -1,15 +1,17 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 import { Input, Select, Textarea } from '../ui/Input';
+import { ImageUpload } from '../ui/ImageUpload';
 import { useCreateDevelopmentProject, useUpdateDevelopmentProject } from '../../hooks/mutations';
 import { useToast } from '../ui/Toast';
 import { extractApiError } from '../../services/api';
 import { DEVELOPMENT_PROJECT_STATUS_OPTIONS, developmentStatusLabel } from '../../utils/developmentStatus';
 import type { DevelopmentProject } from '../../types/development';
+import type { UploadResult } from '../../services/imageService';
 
 const toOptionalNumber = (value: unknown) => (value === '' || value === null || value === undefined ? undefined : Number(value));
 
@@ -22,7 +24,6 @@ const schema = z.object({
   status: z.string().min(1, 'Status is required'),
   expectedCompletionDate: z.string().optional(),
   progressPercentage: z.number({ message: 'Enter a valid number' }).min(0).max(100).optional(),
-  images: z.string().optional(),
   featured: z.boolean(),
 });
 
@@ -39,13 +40,17 @@ export function DevelopmentProjectForm({ open, project, onClose }: DevelopmentPr
   const createProject = useCreateDevelopmentProject();
   const updateProject = useUpdateDevelopmentProject();
   const isEditing = Boolean(project);
+  const [images, setImages] = useState<UploadResult[]>([]);
 
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<DevelopmentProjectFormValues>({
     resolver: zodResolver(schema),
   });
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      setImages([]);
+      return;
+    }
     if (project) {
       reset({
         name: project.name,
@@ -58,9 +63,9 @@ export function DevelopmentProjectForm({ open, project, onClose }: DevelopmentPr
           ? project.expectedCompletionDate.split('T')[0]
           : '',
         progressPercentage: project.progressPercentage,
-        images: (project.images ?? []).map((img) => img.url).join('\n'),
         featured: project.featured,
       });
+      setImages((project.images ?? []).map((img) => ({ url: img.url, publicId: img.publicId })));
     } else {
       reset({
         name: '',
@@ -71,23 +76,11 @@ export function DevelopmentProjectForm({ open, project, onClose }: DevelopmentPr
         status: 'Planning',
         expectedCompletionDate: '',
         progressPercentage: 0,
-        images: '',
         featured: false,
       });
+      setImages([]);
     }
   }, [open, project, reset]);
-
-  const parseImageUrls = (value?: string) =>
-    (value ?? '')
-      .split(/\r?\n/)
-      .map((url) => url.trim())
-      .filter(Boolean)
-      .map((url, i) => ({
-        url,
-        publicId: `manual-${i}`,
-        isCover: i === 0,
-        displayOrder: i,
-      }));
 
   const onSubmit = async (data: DevelopmentProjectFormValues) => {
     const payload: Record<string, unknown> = {
@@ -99,7 +92,12 @@ export function DevelopmentProjectForm({ open, project, onClose }: DevelopmentPr
       status: data.status,
       expectedCompletionDate: data.expectedCompletionDate || undefined,
       progressPercentage: data.progressPercentage,
-      images: parseImageUrls(data.images),
+      images: images.map((img, i) => ({
+        url: img.url,
+        publicId: img.publicId,
+        isCover: i === 0,
+        displayOrder: i,
+      })),
       featured: data.featured,
     };
 
@@ -148,7 +146,10 @@ export function DevelopmentProjectForm({ open, project, onClose }: DevelopmentPr
           <Input label="Slug (optional)" placeholder="Auto-generated from name if blank" error={errors.slug?.message} {...register('slug')} />
         </div>
 
-        <Textarea label="Image URLs (one per line)" placeholder={'https://.../photo1.jpg\nhttps://.../photo2.jpg'} className="min-h-[80px]" error={errors.images?.message} {...register('images')} />
+        <div>
+          <label className="mb-1.5 block text-sm font-medium text-ink-700">Project Images</label>
+          <ImageUpload folder="development" value={images} onChange={setImages} maxFiles={10} />
+        </div>
 
         <label className="inline-flex items-center gap-2 text-sm text-ink-700">
           <input type="checkbox" className="h-4 w-4 rounded border-ink-300 text-forest-500 focus:ring-forest-500" {...register('featured')} />

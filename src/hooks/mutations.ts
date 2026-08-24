@@ -6,6 +6,7 @@ import { enquiryService } from '../services/enquiryService';
 import { messageService } from '../services/messageService';
 import { propertyService } from '../services/propertyService';
 import { developmentService } from '../services/developmentService';
+import { userService } from '../services/userService';
 import { queryKeys } from './queries';
 
 function useInvalidate(prefixes: string[][]) {
@@ -41,6 +42,30 @@ export function useSetFeatured() {
 export function useDeleteProperty() {
   const invalidate = useInvalidate([['properties'], ['agents'], ['dashboard'], ['saved-properties']]);
   return useMutation({ mutationFn: (id: number) => propertyService.remove(id), onSuccess: invalidate });
+}
+
+export function useChangePropertyStatus() {
+  const invalidate = useInvalidate([['properties'], ['dashboard']]);
+  return useMutation({
+    mutationFn: ({ id, status }: { id: number; status: string }) => propertyService.changeStatus(id, status),
+    onSuccess: invalidate,
+  });
+}
+
+export function useChangePropertyListingType() {
+  const invalidate = useInvalidate([['properties'], ['dashboard']]);
+  return useMutation({
+    mutationFn: ({ id, listingType }: { id: number; listingType: string }) => propertyService.changeListingType(id, listingType),
+    onSuccess: invalidate,
+  });
+}
+
+export function useAssignPropertyAgent() {
+  const invalidate = useInvalidate([['properties'], ['agents'], ['dashboard']]);
+  return useMutation({
+    mutationFn: ({ id, agentId }: { id: number; agentId: number | null }) => propertyService.assignAgent(id, agentId),
+    onSuccess: invalidate,
+  });
 }
 
 export function useCreateAgent() {
@@ -110,6 +135,30 @@ export function useRemoveRole() {
   const invalidate = useInvalidate([['users'], ['agents'], ['dashboard']]);
   return useMutation({
     mutationFn: (payload: { email: string; role: string }) => authService.removeRole(payload),
+    onSuccess: invalidate,
+  });
+}
+
+export function useDeactivateUser() {
+  const invalidate = useInvalidate([['users'], ['dashboard']]);
+  return useMutation({
+    mutationFn: (id: string) => userService.deactivate(id),
+    onSuccess: invalidate,
+  });
+}
+
+export function useActivateUser() {
+  const invalidate = useInvalidate([['users'], ['dashboard']]);
+  return useMutation({
+    mutationFn: (id: string) => userService.activate(id),
+    onSuccess: invalidate,
+  });
+}
+
+export function useToggleAgentVerification() {
+  const invalidate = useInvalidate([['agents'], ['users'], ['dashboard']]);
+  return useMutation({
+    mutationFn: (id: number) => agentService.toggleVerification(id),
     onSuccess: invalidate,
   });
 }

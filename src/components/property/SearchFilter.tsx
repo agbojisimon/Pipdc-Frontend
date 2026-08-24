@@ -16,7 +16,8 @@ interface SearchFilterProps {
 const propertyTypes: (PropertyType | 'All')[] = [
   'All', 'Detached House', 'Semi-Detached', 'Terrace', 'Apartment', 'Penthouse', 'Villa', 'Mansion', 'Land', 'Commercial', 'Townhouse',
 ];
-const statuses: (PropertyStatus | 'All')[] = ['All', 'For Sale', 'For Lease', 'Sold', 'Off Market'];
+const statuses: (PropertyStatus | 'All')[] = ['All', 'Available', 'Pending', 'Sold', 'Rented', 'Unavailable'];
+const listingTypes = ['All', 'ForSale', 'ForLease'] as const;
 
 export function SearchFilter({ filters, onChange, onSearch, compact }: SearchFilterProps) {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ export function SearchFilter({ filters, onChange, onSearch, compact }: SearchFil
   };
 
   return (
-    <div className={compact ? 'grid gap-3' : 'grid gap-3 md:grid-cols-2 lg:grid-cols-6'}>
+    <div className={compact ? 'grid gap-3' : 'grid gap-3 md:grid-cols-2 lg:grid-cols-7'}>
       <div className="lg:col-span-1">
         <Select
           aria-label="Location"
@@ -58,7 +59,18 @@ export function SearchFilter({ filters, onChange, onSearch, compact }: SearchFil
           onChange={(e) => onChange({ ...filters, status: e.target.value as PropertyStatus | 'All' })}
         >
           {statuses.map((s) => (
-            <option key={s} value={s}>{s === 'All' ? 'Sale / Rent' : propertyStatusLabel(s)}</option>
+            <option key={s} value={s}>{s === 'All' ? 'All Statuses' : propertyStatusLabel(s)}</option>
+          ))}
+        </Select>
+      </div>
+      <div className="lg:col-span-1">
+        <Select
+          aria-label="Listing type"
+          value={filters.listingType ?? 'All'}
+          onChange={(e) => onChange({ ...filters, listingType: e.target.value === 'All' ? undefined : e.target.value })}
+        >
+          {listingTypes.map((lt) => (
+            <option key={lt} value={lt}>{lt === 'All' ? 'All Listing Types' : lt === 'ForSale' ? 'For Sale' : 'For Rent'}</option>
           ))}
         </Select>
       </div>
