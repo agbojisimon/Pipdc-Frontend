@@ -31,6 +31,9 @@ export const queryKeys = {
   blogPosts: ['blog'] as const,
   blogPostsAll: ['blog', 'all'] as const,
   blogPost: (slug: string) => ['blog', 'slug', slug] as const,
+  blogRelated: (slug: string) => ['blog', 'related', slug] as const,
+  blogCategories: ['blog', 'categories'] as const,
+  blogTags: ['blog', 'tags'] as const,
   users: ['users'] as const,
   user: (id: string) => ['users', id] as const,
   agentSummary: (id: number) => ['agents', id, 'summary'] as const,
@@ -162,6 +165,28 @@ export function useBlogPost(slug: string | undefined) {
     queryKey: queryKeys.blogPost(slug ?? ''),
     queryFn: () => blogService.getBySlug(slug!),
     enabled: Boolean(slug),
+  });
+}
+
+export function useRelatedPosts(slug: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.blogRelated(slug ?? ''),
+    queryFn: () => blogService.getRelated(slug!),
+    enabled: Boolean(slug),
+  });
+}
+
+export function useBlogCategories() {
+  return useQuery({
+    queryKey: queryKeys.blogCategories,
+    queryFn: blogService.categories,
+  });
+}
+
+export function useBlogTags() {
+  return useQuery({
+    queryKey: queryKeys.blogTags,
+    queryFn: blogService.tags,
   });
 }
 

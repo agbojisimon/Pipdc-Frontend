@@ -123,6 +123,42 @@ export function useDeleteBlogPost() {
   return useMutation({ mutationFn: (id: number) => blogService.remove(id), onSuccess: invalidate });
 }
 
+export function usePublishBlogPost() {
+  const invalidate = useInvalidate([['blog']]);
+  return useMutation({ mutationFn: (id: number) => blogService.publish(id), onSuccess: invalidate });
+}
+
+export function useUnpublishBlogPost() {
+  const invalidate = useInvalidate([['blog']]);
+  return useMutation({ mutationFn: (id: number) => blogService.unpublish(id), onSuccess: invalidate });
+}
+
+export function useCreateCategory() {
+  const invalidate = useInvalidate([['blog'], ['blog', 'categories']]);
+  return useMutation({
+    mutationFn: (payload: { name: string; slug?: string }) => blogService.createCategory(payload),
+    onSuccess: invalidate,
+  });
+}
+
+export function useDeleteCategory() {
+  const invalidate = useInvalidate([['blog'], ['blog', 'categories']]);
+  return useMutation({ mutationFn: (id: number) => blogService.removeCategory(id), onSuccess: invalidate });
+}
+
+export function useCreateTag() {
+  const invalidate = useInvalidate([['blog'], ['blog', 'tags']]);
+  return useMutation({
+    mutationFn: (payload: { name: string; slug?: string }) => blogService.createTag(payload),
+    onSuccess: invalidate,
+  });
+}
+
+export function useDeleteTag() {
+  const invalidate = useInvalidate([['blog'], ['blog', 'tags']]);
+  return useMutation({ mutationFn: (id: number) => blogService.removeTag(id), onSuccess: invalidate });
+}
+
 export function useAddRole() {
   const invalidate = useInvalidate([['users'], ['agents'], ['dashboard']]);
   return useMutation({

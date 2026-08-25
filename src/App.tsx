@@ -1,5 +1,6 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { HelmetProvider } from 'react-helmet-async';
 import { ToastProvider } from './components/ui/Toast';
 import { AuthProvider } from './contexts/AuthContext';
 import { RealtimeProvider } from './contexts/RealtimeContext';
@@ -160,14 +161,16 @@ const router = createBrowserRouter([
 
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <RealtimeProvider>
-          <ToastProvider>
-            <RouterProvider router={router} />
-          </ToastProvider>
-        </RealtimeProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <RealtimeProvider>
+            <ToastProvider>
+              <RouterProvider router={router} />
+            </ToastProvider>
+          </RealtimeProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
   );
 }

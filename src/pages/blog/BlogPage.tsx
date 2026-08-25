@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Newspaper, ArrowRight } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 import { Badge } from '../../components/ui/Badge';
 import { useBlogPosts } from '../../hooks/queries';
 import { formatDate } from '../../utils/format';
@@ -11,6 +12,10 @@ export function BlogPage() {
 
   return (
     <div className="section-pad bg-white">
+      <Helmet>
+        <title>Insights & Resources — PIPDC</title>
+        <meta name="description" content="Expert insights on real estate investment, legal guidance, and market trends from the Presidential Interface & Property Development Committee." />
+      </Helmet>
       <div className="container-x">
         <div className="max-w-2xl">
           <span className="inline-flex items-center gap-2 rounded-full bg-forest-50 px-3 py-1 text-xs font-semibold text-forest-700">
@@ -52,7 +57,7 @@ export function BlogPage() {
                 </div>
                 <div className="flex flex-1 flex-col p-5">
                   <div className="flex items-center gap-2">
-                    <Badge tone="forest">{post.status}</Badge>
+                    {post.categoryName ? <Badge tone="forest">{post.categoryName}</Badge> : <Badge tone="neutral">General</Badge>}
                     <span className="text-xs text-ink-400">{post.readMinutes} min read</span>
                   </div>
                   <h2 className="mt-3 font-display text-lg font-semibold leading-snug text-ink-900 line-clamp-2">{post.title}</h2>
