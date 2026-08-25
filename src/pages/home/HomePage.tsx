@@ -203,7 +203,7 @@ export function HomePage() {
                   </Link>
                   <div className="flex flex-1 flex-col p-5">
                     <div className="flex items-center gap-2">
-                      <Badge tone="forest">{post.status}</Badge>
+                      {post.categoryName ? <Badge tone="forest">{post.categoryName}</Badge> : <Badge tone="neutral">General</Badge>}
                       <span className="inline-flex items-center gap-1 text-xs text-ink-400">
                         <Newspaper className="h-3.5 w-3.5" /> {post.readMinutes} min read
                       </span>

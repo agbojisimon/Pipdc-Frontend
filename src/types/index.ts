@@ -78,6 +78,20 @@ export interface SavedProperty {
   savedAt: string;
 }
 
+export interface Tag {
+  id: number;
+  name: string;
+  slug: string;
+  blogPostCount: number;
+}
+
+export interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  blogPostCount: number;
+}
+
 export interface BlogPost {
   id: number;
   title: string;
@@ -91,6 +105,12 @@ export interface BlogPost {
   createdAt: string;
   updatedAt: string | null;
   readMinutes: number;
+  keyQuote: string | null;
+  categoryId: number | null;
+  categoryName: string | null;
+  authorUserId: string | null;
+  authorName: string | null;
+  tags: Tag[];
 }
 
 export type EnquiryStatus = 'Pending' | 'InProgress' | 'ViewingScheduled' | 'Resolved';

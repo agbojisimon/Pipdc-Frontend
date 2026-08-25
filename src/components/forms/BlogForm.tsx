@@ -7,6 +7,7 @@ import { Button } from '../ui/Button';
 import { Input, Select, Textarea } from '../ui/Input';
 import { ImageUpload } from '../ui/ImageUpload';
 import { useCreateBlogPost, useUpdateBlogPost } from '../../hooks/mutations';
+import { useBlogCategories, useBlogTags } from '../../hooks/queries';
 import { useToast } from '../ui/Toast';
 import { extractApiError } from '../../services/api';
 import type { BlogPost } from '../../types';
@@ -20,6 +21,8 @@ const schema = z.object({
   excerpt: z.string().optional(),
   status: z.enum(statuses),
   content: z.string().min(20, 'Content must be at least 20 characters'),
+  keyQuote: z.string().optional(),
+  categoryId: z.string().optional(),
 });
 
 type BlogFormValues = z.infer<typeof schema>;
@@ -34,8 +37,11 @@ export function BlogForm({ open, post, onClose }: BlogFormProps) {
   const { notify } = useToast();
   const createPost = useCreateBlogPost();
   const updatePost = useUpdateBlogPost();
+  const { data: categories = [] } = useBlogCategories();
+  const { data: tags = [] } = useBlogTags();
   const isEditing = Boolean(post);
   const [coverImage, setCoverImage] = useState<UploadResult[]>([]);
+  const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
 
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<BlogFormValues>({
     resolver: zodResolver(schema),
@@ -44,6 +50,7 @@ export function BlogForm({ open, post, onClose }: BlogFormProps) {
   useEffect(() => {
     if (!open) {
       setCoverImage(null);
+      setSelectedTagIds([]);
       return;
     }
     if (post) {
@@ -53,7 +60,10 @@ export function BlogForm({ open, post, onClose }: BlogFormProps) {
         excerpt: post.excerpt ?? '',
         status: post.status as BlogFormValues['status'],
         content: post.content,
+        keyQuote: post.keyQuote ?? '',
+        categoryId: post.categoryId?.toString() ?? '',
       });
+      setSelectedTagIds(post.tags.map((t) => t.id));
       if (post.coverImageUrl) {
         setCoverImage([{ url: post.coverImageUrl, publicId: post.coverImagePublicId ?? '' }]);
       } else {
@@ -66,10 +76,19 @@ export function BlogForm({ open, post, onClose }: BlogFormProps) {
         excerpt: '',
         status: 'Draft',
         content: '',
+        keyQuote: '',
+        categoryId: '',
       });
+      setSelectedTagIds([]);
       setCoverImage([]);
     }
   }, [open, post, reset]);
+
+  const toggleTag = (tagId: number) => {
+    setSelectedTagIds((prev) =>
+      prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId]
+    );
+  };
 
   const onSubmit = async (data: BlogFormValues) => {
     const payload: Record<string, unknown> = {
@@ -80,6 +99,9 @@ export function BlogForm({ open, post, onClose }: BlogFormProps) {
       coverImagePublicId: coverImage[0]?.publicId || undefined,
       status: data.status,
       content: data.content,
+      keyQuote: data.keyQuote?.trim() || undefined,
+      categoryId: data.categoryId ? Number(data.categoryId) : null,
+      tagIds: selectedTagIds.length > 0 ? selectedTagIds : undefined,
     };
 
     try {
@@ -112,10 +134,16 @@ export function BlogForm({ open, post, onClose }: BlogFormProps) {
             <label className="mb-1.5 block text-sm font-medium text-ink-700">Cover Image</label>
             <ImageUpload folder="blogs" value={coverImage} onChange={setCoverImage} maxFiles={1} />
           </div>
-          <div>
+          <div className="space-y-4">
             <Select label="Status" error={errors.status?.message} {...register('status')}>
               {statuses.map((s) => (
                 <option key={s} value={s}>{s}</option>
+              ))}
+            </Select>
+            <Select label="Category" error={errors.categoryId?.message} {...register('categoryId')}>
+              <option value="">No category</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </Select>
           </div>
@@ -126,9 +154,33 @@ export function BlogForm({ open, post, onClose }: BlogFormProps) {
           <Input label="Slug (optional)" placeholder="Auto-generated from title if blank" error={errors.slug?.message} {...register('slug')} />
         </div>
 
+        <Input label="Key Quote (optional)" placeholder="e.g. A good name is more desirable than great riches" error={errors.keyQuote?.message} {...register('keyQuote')} />
+
+        {tags.length > 0 && (
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-ink-700">Tags</label>
+            <div className="flex flex-wrap gap-2">
+              {tags.map((tag) => (
+                <button
+                  key={tag.id}
+                  type="button"
+                  onClick={() => toggleTag(tag.id)}
+                  className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                    selectedTagIds.includes(tag.id)
+                      ? 'border-forest-500 bg-forest-50 text-forest-700'
+                      : 'border-ink-200 bg-white text-ink-600 hover:border-ink-300'
+                  }`}
+                >
+                  {tag.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <Textarea
           label="Content"
-          placeholder="Write the full article here."
+          placeholder="Write the full article here. Markdown is supported."
           className="min-h-[180px]"
           error={errors.content?.message}
           {...register('content')}
