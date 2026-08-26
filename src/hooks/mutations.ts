@@ -3,6 +3,7 @@ import { agentService } from '../services/agentService';
 import { authService } from '../services/authService';
 import { blogService } from '../services/blogService';
 import { enquiryService } from '../services/enquiryService';
+import { locationService } from '../services/locationService';
 import { messageService } from '../services/messageService';
 import { propertyService } from '../services/propertyService';
 import { developmentService } from '../services/developmentService';
@@ -353,4 +354,19 @@ export function useUpdateTrackingStatus() {
     mutationFn: ({ trackingId, status }: { trackingId: number; status: string }) => developmentService.adminUpdateTrackingStatus(trackingId, status),
     onSuccess: invalidate,
   });
+}
+
+// ── Locations ──────────────────────────────────────────────────────────
+
+export function useCreateLocation() {
+  const invalidate = useInvalidate([['locations'], ['properties'], ['development-projects']]);
+  return useMutation({
+    mutationFn: (payload: { name: string; type: string; parentId?: number | null }) => locationService.create(payload),
+    onSuccess: invalidate,
+  });
+}
+
+export function useDeleteLocation() {
+  const invalidate = useInvalidate([['locations'], ['properties'], ['development-projects']]);
+  return useMutation({ mutationFn: (id: number) => locationService.remove(id), onSuccess: invalidate });
 }

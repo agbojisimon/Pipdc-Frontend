@@ -4,6 +4,7 @@ import { blogService } from '../services/blogService';
 import { conversationService } from '../services/conversationService';
 import { dashboardService } from '../services/dashboardService';
 import { enquiryService } from '../services/enquiryService';
+import { locationService, type LocationListParams } from '../services/locationService';
 import { messageService } from '../services/messageService';
 import { propertyService } from '../services/propertyService';
 import { savedPropertyService } from '../services/savedPropertyService';
@@ -52,6 +53,8 @@ export const queryKeys = {
   developmentUpdates: (projectId: number) => ['development-projects', projectId, 'updates'] as const,
   developmentTracking: (filters?: DevelopmentProjectFilters) => ['development-tracking', filters] as const,
   adminDevelopmentTracking: (filters?: DevelopmentTrackingFilters) => ['admin-development-tracking', filters] as const,
+  locations: (params?: LocationListParams) => ['locations', params] as const,
+  locationHierarchy: ['locations', 'hierarchy'] as const,
 };
 
 export function useFeaturedProperties() {
@@ -327,5 +330,21 @@ export function useAdminDevelopmentTracking(filters?: DevelopmentTrackingFilters
   return useQuery({
     queryKey: queryKeys.adminDevelopmentTracking(filters),
     queryFn: () => developmentService.adminListTracking(filters),
+  });
+}
+
+// ── Locations ──────────────────────────────────────────────────────────
+
+export function useLocations(params?: LocationListParams) {
+  return useQuery({
+    queryKey: queryKeys.locations(params),
+    queryFn: () => locationService.list(params),
+  });
+}
+
+export function useLocationHierarchy() {
+  return useQuery({
+    queryKey: queryKeys.locationHierarchy,
+    queryFn: locationService.getHierarchy,
   });
 }

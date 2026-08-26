@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { SlidersHorizontal, Grid3x3, List, MapPin, AlertTriangle } from 'lucide-react';
 import type { PropertyFilters } from '../types';
-import { useProperties } from '../hooks/queries';
+import { useProperties, useLocations } from '../hooks/queries';
 import { useFavourites } from '../hooks/useFavourites';
 import { PropertyCard } from '../components/property/PropertyCard';
 import { PropertyCardSkeleton } from '../components/property/PropertyCardSkeleton';
@@ -13,7 +13,6 @@ import { Pagination } from '../components/ui/Pagination';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { cn } from '../utils/cn';
-import { plateauLocations } from '../services/mockData';
 
 const PAGE_SIZE = 9;
 
@@ -21,6 +20,7 @@ export function PropertiesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [view, setView] = useState<'grid' | 'list'>('grid');
   const { isFavourite, toggle } = useFavourites();
+  const { data: states = [] } = useLocations({ type: 'State' });
 
   const filters: PropertyFilters = useMemo(
     () => ({
@@ -108,14 +108,14 @@ export function PropertiesPage() {
               <div className="rounded-2xl border border-ink-100 bg-white p-5 shadow-soft">
                 <h3 className="font-display text-sm font-semibold text-ink-900">Popular locations</h3>
                 <ul className="mt-3 space-y-2 text-sm">
-                  {plateauLocations.slice(0, 5).map((l) => (
-                    <li key={l}>
+                  {states.slice(0, 5).map((s) => (
+                    <li key={s.id}>
                       <button
-                        onClick={() => onChange({ ...filters, location: l })}
+                        onClick={() => onChange({ ...filters, locationId: s.id, location: undefined })}
                         className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-ink-600 transition-colors hover:bg-ink-100 hover:text-forest-600"
                       >
                         <span className="inline-flex items-center gap-2">
-                          <MapPin className="h-3.5 w-3.5 text-forest-500" /> {l}
+                          <MapPin className="h-3.5 w-3.5 text-forest-500" /> {s.name}
                         </span>
                       </button>
                     </li>

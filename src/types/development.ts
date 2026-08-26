@@ -2,7 +2,7 @@
 
 import type { Paginated } from './index';
 
-export type DevelopmentProjectStatus = 'Planning' | 'InConstruction' | 'Completed' | 'OnHold';
+export type DevelopmentProjectStatus = 'Planned' | 'UnderConstruction' | 'NearCompletion' | 'Completed' | 'OnHold';
 
 export type DevelopmentUnitStatus = 'Available' | 'Reserved' | 'Sold' | 'UnderConstruction';
 
@@ -24,6 +24,7 @@ export interface DevelopmentProject {
   slug: string;
   description: string;
   location: string;
+  locationRefId: number | null;
   developer: string | null;
   status: DevelopmentProjectStatus;
   expectedCompletionDate: string | null;
@@ -87,6 +88,7 @@ export interface DevelopmentProjectFilters {
   keyword?: string;
   status?: DevelopmentProjectStatus;
   featured?: boolean;
+  locationId?: number;
   pageNumber?: number;
   pageSize?: number;
 }

@@ -1,4 +1,4 @@
-import { Building2, Users, MessageSquare, Newspaper, UserCircle, Settings, Heart, MessagesSquare, HardHat, Radar } from 'lucide-react';
+import { Building2, Users, MessageSquare, Newspaper, UserCircle, Settings, Heart, MessagesSquare, HardHat, Radar, MapPin } from 'lucide-react';
 import { Breadcrumb } from '../../components/ui/Breadcrumb';
 import { useAuth } from '../../contexts/AuthContext';
 import { primaryRole } from '../../utils/roles';
@@ -13,6 +13,7 @@ import { SettingsSection } from '../../components/dashboard/sections/SettingsSec
 import { SavedSection } from '../../components/dashboard/sections/SavedSection';
 import { DevelopmentsSection } from '../../components/dashboard/sections/DevelopmentsSection';
 import { TrackedDevelopmentsSection } from '../../components/dashboard/sections/TrackedDevelopmentsSection';
+import { LocationsSection } from '../../components/dashboard/sections/LocationsSection';
 
 export type DashboardSection =
   | 'properties'
@@ -25,7 +26,8 @@ export type DashboardSection =
   | 'settings'
   | 'saved'
   | 'developments'
-  | 'tracked';
+  | 'tracked'
+  | 'locations';
 
 const config: Record<DashboardSection, { title: string; description: string }> = {
   properties: { title: 'Properties', description: 'Manage all listings on the PIPDC portal.' },
@@ -39,6 +41,7 @@ const config: Record<DashboardSection, { title: string; description: string }> =
   saved: { title: 'Saved Properties', description: 'Properties you have saved for later.' },
   developments: { title: 'Developments', description: 'Manage development projects and track construction progress.' },
   tracked: { title: 'Tracked Projects', description: 'Development projects you are tracking.' },
+  locations: { title: 'Locations', description: 'Manage the location hierarchy used across properties and developments.' },
 };
 
 const agentDescriptions: Partial<Record<DashboardSection, string>> = {
@@ -58,6 +61,7 @@ const sectionIcons: Record<DashboardSection, React.ReactNode> = {
   saved: <Heart className="h-5 w-5" />,
   developments: <HardHat className="h-5 w-5" />,
   tracked: <Radar className="h-5 w-5" />,
+  locations: <MapPin className="h-5 w-5" />,
 };
 
 export function DashboardSectionPage({ section }: { section: DashboardSection }) {
@@ -87,6 +91,7 @@ export function DashboardSectionPage({ section }: { section: DashboardSection })
       {section === 'saved' && <SavedSection />}
       {section === 'developments' && <DevelopmentsSection />}
       {section === 'tracked' && <TrackedDevelopmentsSection />}
+      {section === 'locations' && <LocationsSection />}
     </div>
   );
 }
