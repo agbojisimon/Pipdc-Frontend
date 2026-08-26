@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { UserPlus, UserMinus, Eye, ShieldCheck, ShieldOff } from 'lucide-react';
+import { UserPlus, UserMinus, Eye, ShieldCheck, ShieldOff, Search } from 'lucide-react';
 import { Badge } from '../../ui/Badge';
 import { Button } from '../../ui/Button';
 import { Modal } from '../../ui/Modal';
@@ -10,11 +10,16 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { formatDate } from '../../../utils/format';
 import { extractApiError } from '../../../services/api';
 import { useToast } from '../../ui/Toast';
-import { CardTable, LoadingRows, TableEmpty, thClass, tdClass } from './shared';
+import { CardTable, LoadingRows, TableEmpty, thClass, tdClass, SectionFooter } from './shared';
 import type { User } from '../../../types';
 
+const PAGE_SIZE = 10;
+
 export function UsersSection() {
-  const usersQuery = useUsers();
+  const [page, setPage] = useState(1);
+  const [keyword, setKeyword] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const usersQuery = useUsers({ pageNumber: page, pageSize: PAGE_SIZE, keyword: keyword || undefined });
   const { user: currentUser } = useAuth();
   const { notify } = useToast();
   const addRole = useAddRole();
@@ -34,6 +39,7 @@ export function UsersSection() {
   const affectedCount = propertyQuery.data?.totalCount ?? 0;
 
   const users = usersQuery.data?.items ?? [];
+  const totalCount = usersQuery.data?.totalCount ?? 0;
 
   const confirmPromote = async () => {
     if (!promoting) return;
@@ -84,6 +90,19 @@ export function UsersSection() {
   return (
     <>
       <CardTable title="Registered Users">
+        <div className="flex items-center gap-3 border-b border-ink-100 px-4 py-3">
+          <div className="relative flex-1 max-w-xs">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
+            <input
+              type="text"
+              placeholder="Search users..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { setPage(1); setKeyword(searchInput); } }}
+              className="w-full rounded-lg border border-ink-200 bg-white py-2 pl-9 pr-3 text-sm text-ink-700 placeholder:text-ink-400 focus:border-forest-500 focus:outline-none focus:ring-1 focus:ring-forest-500/40"
+            />
+          </div>
+        </div>
         {usersQuery.isLoading ? (
           <LoadingRows rows={5} />
         ) : users.length === 0 ? (
@@ -176,6 +195,7 @@ export function UsersSection() {
             </tbody>
           </table>
         )}
+        <SectionFooter pageNumber={page} pageSize={PAGE_SIZE} totalCount={totalCount} onPageChange={setPage} />
       </CardTable>
 
       {/* View Profile Modal */}

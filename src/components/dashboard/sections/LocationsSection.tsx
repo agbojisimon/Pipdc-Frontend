@@ -17,6 +17,90 @@ const typeTone: Record<LocationType, 'forest' | 'gold' | 'neutral' | 'info'> = {
   Area: 'neutral',
 };
 
+function CityRow({
+  city,
+  onDelete,
+}: {
+  city: Location;
+  onDelete: (loc: Location) => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const { data: areas = [], isLoading: areasLoading } = useLocations(
+    expanded ? { parentId: city.id } : undefined,
+  );
+
+  return (
+    <>
+      <tr className="bg-ink-50/30 transition-colors hover:bg-ink-50/60">
+        <td className={tdClass}>
+          <button
+            type="button"
+            onClick={() => setExpanded(!expanded)}
+            className="inline-flex items-center gap-1.5 pl-8 text-left"
+          >
+            <ChevronRight
+              className={`h-4 w-4 text-ink-400 transition-transform ${expanded ? 'rotate-90' : ''}`}
+            />
+            <span className="font-medium text-ink-700">{city.name}</span>
+            <span className="text-xs text-ink-400">{city.slug}</span>
+          </button>
+        </td>
+        <td className={tdClass}><Badge tone={typeTone[city.type]}>{city.type}</Badge></td>
+        <td className={tdClass}>{city.childCount}</td>
+        <td className={tdClass}>
+          <div className="flex items-center justify-end gap-1.5">
+            <button
+              type="button"
+              onClick={() => onDelete(city)}
+              title="Delete"
+              className="rounded-lg p-2.5 text-ink-400 transition-colors hover:bg-red-50 hover:text-red-600"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        </td>
+      </tr>
+
+      {expanded && (
+        <>
+          {areasLoading ? (
+            <tr>
+              <td colSpan={4} className="px-10 py-3 text-sm text-ink-400">Loading areas...</td>
+            </tr>
+          ) : areas.length === 0 ? (
+            <tr>
+              <td colSpan={4} className="px-10 py-3 text-sm text-ink-400">No areas yet.</td>
+            </tr>
+          ) : (
+            areas.map((area) => (
+              <tr key={area.id} className="bg-ink-50/20 transition-colors hover:bg-ink-50/40">
+                <td className={tdClass}>
+                  <span className="pl-16 font-medium text-ink-600">{area.name}</span>
+                  <span className="ml-2 block pl-16 text-xs text-ink-400">{area.slug}</span>
+                </td>
+                <td className={tdClass}><Badge tone={typeTone[area.type]}>{area.type}</Badge></td>
+                <td className={tdClass}>{area.childCount}</td>
+                <td className={tdClass}>
+                  <div className="flex items-center justify-end gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => onDelete(area)}
+                      title="Delete"
+                      className="rounded-lg p-2.5 text-ink-400 transition-colors hover:bg-red-50 hover:text-red-600"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))
+          )}
+        </>
+      )}
+    </>
+  );
+}
+
 function StateRow({
   state,
   expanded,
@@ -81,26 +165,7 @@ function StateRow({
             </tr>
           ) : (
             children.map((child) => (
-              <tr key={child.id} className="bg-ink-50/30 transition-colors hover:bg-ink-50/60">
-                <td className={tdClass}>
-                  <span className="pl-8 font-medium text-ink-700">{child.name}</span>
-                  <span className="ml-2 block pl-8 text-xs text-ink-400">{child.slug}</span>
-                </td>
-                <td className={tdClass}><Badge tone={typeTone[child.type]}>{child.type}</Badge></td>
-                <td className={tdClass}>{child.childCount}</td>
-                <td className={tdClass}>
-                  <div className="flex items-center justify-end gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => onDelete(child)}
-                      title="Delete"
-                      className="rounded-lg p-2.5 text-ink-400 transition-colors hover:bg-red-50 hover:text-red-600"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
+              <CityRow key={child.id} city={child} onDelete={onDelete} />
             ))
           )}
         </>

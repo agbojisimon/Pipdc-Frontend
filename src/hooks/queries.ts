@@ -1,14 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
-import { agentService } from '../services/agentService';
-import { blogService } from '../services/blogService';
+import { agentService, type AgentFilters } from '../services/agentService';
+import { blogService, type BlogFilters } from '../services/blogService';
 import { conversationService } from '../services/conversationService';
 import { dashboardService } from '../services/dashboardService';
-import { enquiryService } from '../services/enquiryService';
+import { enquiryService, type EnquiryFilters } from '../services/enquiryService';
 import { locationService, type LocationListParams } from '../services/locationService';
 import { messageService } from '../services/messageService';
 import { propertyService } from '../services/propertyService';
-import { savedPropertyService } from '../services/savedPropertyService';
-import { userService } from '../services/userService';
+import { savedPropertyService, type SavedPropertyFilters } from '../services/savedPropertyService';
+import { userService, type UserFilters } from '../services/userService';
 import { developmentService } from '../services/developmentService';
 import { useAuth } from '../contexts/AuthContext';
 import { primaryRole } from '../utils/roles';
@@ -21,25 +21,25 @@ export const queryKeys = {
   property: (slug: string) => ['properties', 'slug', slug] as const,
   similarProperties: (id: number) => ['properties', id, 'similar'] as const,
   agentProperties: (agentId: number) => ['properties', 'agent', agentId] as const,
-  agents: ['agents'] as const,
+  agents: (filters?: AgentFilters) => ['agents', filters] as const,
   agent: (id: number) => ['agents', id] as const,
   myAgent: ['agents', 'me'] as const,
-  enquiries: ['enquiries'] as const,
-  myEnquiries: ['enquiries', 'mine'] as const,
-  agentEnquirySummaries: ['enquiries', 'agents', 'summary'] as const,
-  agentEnquiries: (agentId: number) => ['enquiries', 'agents', agentId] as const,
+  enquiries: (filters?: EnquiryFilters) => ['enquiries', filters] as const,
+  myEnquiries: (filters?: EnquiryFilters) => ['enquiries', 'mine', filters] as const,
+  agentEnquirySummaries: (filters?: EnquiryFilters) => ['enquiries', 'agents', 'summary', filters] as const,
+  agentEnquiries: (agentId: number, filters?: EnquiryFilters) => ['enquiries', 'agents', agentId, filters] as const,
   propertyEnquiries: (propertyId: number) => ['enquiries', 'property', propertyId] as const,
-  blogPosts: ['blog'] as const,
-  blogPostsAll: ['blog', 'all'] as const,
+  blogPosts: (filters?: BlogFilters) => ['blog', filters] as const,
+  blogPostsAll: (filters?: BlogFilters) => ['blog', 'all', filters] as const,
   blogPost: (slug: string) => ['blog', 'slug', slug] as const,
   blogRelated: (slug: string) => ['blog', 'related', slug] as const,
   blogCategories: ['blog', 'categories'] as const,
   blogTags: ['blog', 'tags'] as const,
-  users: ['users'] as const,
+  users: (filters?: UserFilters) => ['users', filters] as const,
   user: (id: string) => ['users', id] as const,
   agentSummary: (id: number) => ['agents', id, 'summary'] as const,
   savedIds: ['saved-properties', 'ids'] as const,
-  savedProperties: ['saved-properties'] as const,
+  savedProperties: (filters?: SavedPropertyFilters) => ['saved-properties', filters] as const,
   dashboard: (role: string) => ['dashboard', role] as const,
   conversations: ['conversations'] as const,
   conversation: (id: number) => ['conversations', id] as const,
@@ -84,10 +84,10 @@ export function useSimilarProperties(id: number | undefined) {
   });
 }
 
-export function useAgents() {
+export function useAgents(filters?: AgentFilters) {
   return useQuery({
-    queryKey: queryKeys.agents,
-    queryFn: () => agentService.list({ pageSize: 100 }),
+    queryKey: queryKeys.agents(filters),
+    queryFn: () => agentService.list(filters),
   });
 }
 
@@ -115,31 +115,31 @@ export function useAgentProperties(agentId: number | undefined) {
   });
 }
 
-export function useEnquiries() {
+export function useEnquiries(filters?: EnquiryFilters) {
   return useQuery({
-    queryKey: queryKeys.enquiries,
-    queryFn: () => enquiryService.list({ pageSize: 100 }),
+    queryKey: queryKeys.enquiries(filters),
+    queryFn: () => enquiryService.list(filters),
   });
 }
 
-export function useMyEnquiries() {
+export function useMyEnquiries(filters?: EnquiryFilters) {
   return useQuery({
-    queryKey: queryKeys.myEnquiries,
-    queryFn: () => enquiryService.mine({ pageSize: 100 }),
+    queryKey: queryKeys.myEnquiries(filters),
+    queryFn: () => enquiryService.mine(filters),
   });
 }
 
-export function useAgentEnquirySummaries() {
+export function useAgentEnquirySummaries(filters?: EnquiryFilters) {
   return useQuery({
-    queryKey: queryKeys.agentEnquirySummaries,
-    queryFn: () => enquiryService.agentSummaries({ pageSize: 100 }),
+    queryKey: queryKeys.agentEnquirySummaries(filters),
+    queryFn: () => enquiryService.agentSummaries(filters),
   });
 }
 
-export function useAgentEnquiries(agentId: number | undefined) {
+export function useAgentEnquiries(agentId: number | undefined, filters?: EnquiryFilters) {
   return useQuery({
-    queryKey: queryKeys.agentEnquiries(agentId ?? 0),
-    queryFn: () => enquiryService.byAgent(agentId!, { pageSize: 100 }),
+    queryKey: queryKeys.agentEnquiries(agentId ?? 0, filters),
+    queryFn: () => enquiryService.byAgent(agentId!, filters),
     enabled: Boolean(agentId),
   });
 }
@@ -152,14 +152,17 @@ export function usePropertyEnquiries(propertyId: number | undefined) {
   });
 }
 
-export function useBlogPosts() {
-  return useQuery({ queryKey: queryKeys.blogPosts, queryFn: blogService.list });
+export function useBlogPosts(filters?: BlogFilters) {
+  return useQuery({
+    queryKey: queryKeys.blogPosts(filters),
+    queryFn: () => blogService.list(filters),
+  });
 }
 
-export function useAllBlogPosts() {
+export function useAllBlogPosts(filters?: BlogFilters) {
   return useQuery({
-    queryKey: queryKeys.blogPostsAll,
-    queryFn: () => blogService.listManaged({ pageSize: 100 }),
+    queryKey: queryKeys.blogPostsAll(filters),
+    queryFn: () => blogService.listManaged(filters),
   });
 }
 
@@ -193,17 +196,17 @@ export function useBlogTags() {
   });
 }
 
-export function useSavedProperties() {
+export function useSavedProperties(filters?: SavedPropertyFilters) {
   return useQuery({
-    queryKey: queryKeys.savedProperties,
-    queryFn: () => savedPropertyService.list({ pageSize: 100 }),
+    queryKey: queryKeys.savedProperties(filters),
+    queryFn: () => savedPropertyService.list(filters),
   });
 }
 
-export function useUsers() {
+export function useUsers(filters?: UserFilters) {
   return useQuery({
-    queryKey: queryKeys.users,
-    queryFn: () => userService.list({ pageSize: 100 }),
+    queryKey: queryKeys.users(filters),
+    queryFn: () => userService.list(filters),
   });
 }
 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Plus, Star, MessageSquare } from 'lucide-react';
+import { Plus, Star, MessageSquare, Search } from 'lucide-react';
 import { Button } from '../../ui/Button';
 import { Badge } from '../../ui/Badge';
 import { ConfirmDialog } from '../../ui/ConfirmDialog';
@@ -19,8 +19,10 @@ import { useToast } from '../../ui/Toast';
 import { primaryRole } from '../../../utils/roles';
 import { cn } from '../../../utils/cn';
 import { propertyStatusLabel, PROPERTY_STATUSES } from '../../../utils/propertyStatus';
-import { CardTable, RowActions, LoadingRows, TableEmpty, thClass, tdClass } from './shared';
+import { CardTable, RowActions, LoadingRows, TableEmpty, thClass, tdClass, SectionFooter } from './shared';
 import type { Property } from '../../../types';
+
+const PAGE_SIZE = 10;
 
 const statusTone: Record<string, 'forest' | 'gold' | 'neutral' | 'info' | 'danger'> = {
   Available: 'forest',
@@ -36,6 +38,9 @@ export function PropertiesSection() {
   const [searchParams, setSearchParams] = useSearchParams();
   const shouldCreate = searchParams.get('new') === '1';
 
+  const [page, setPage] = useState(1);
+  const [keyword, setKeyword] = useState('');
+  const [searchInput, setSearchInput] = useState('');
   const [formOpen, setFormOpen] = useState(shouldCreate);
   const [editing, setEditing] = useState<Property | null>(null);
   const [deleting, setDeleting] = useState<Property | null>(null);
@@ -51,7 +56,9 @@ export function PropertiesSection() {
   const myAgentQuery = useMyAgent(role === 'Agent');
   const agentId = role === 'Agent' ? myAgentQuery.data?.id : undefined;
 
-  const propertiesQuery = useProperties(role === 'Agent' && agentId ? { agentId, pageSize: 100 } : { pageSize: 100 });
+  const propertiesQuery = useProperties(role === 'Agent' && agentId
+    ? { agentId, pageNumber: page, pageSize: PAGE_SIZE, query: keyword || undefined }
+    : { pageNumber: page, pageSize: PAGE_SIZE, query: keyword || undefined });
   const agentsQuery = useAgents();
 
   const openCreate = () => {
@@ -122,6 +129,7 @@ export function PropertiesSection() {
 
   const agents = agentsQuery.data?.items ?? [];
   const properties = propertiesQuery.data?.items ?? [];
+  const totalCount = propertiesQuery.data?.totalCount ?? 0;
 
   return (
     <>
@@ -133,6 +141,19 @@ export function PropertiesSection() {
           </Button>
         }
       >
+        <div className="flex items-center gap-3 border-b border-ink-100 px-4 py-3">
+          <div className="relative flex-1 max-w-xs">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
+            <input
+              type="text"
+              placeholder="Search properties..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { setPage(1); setKeyword(searchInput); } }}
+              className="w-full rounded-lg border border-ink-200 bg-white py-2 pl-9 pr-3 text-sm text-ink-700 placeholder:text-ink-400 focus:border-forest-500 focus:outline-none focus:ring-1 focus:ring-forest-500/40"
+            />
+          </div>
+        </div>
         {propertiesQuery.isLoading ? (
           <LoadingRows rows={5} />
         ) : properties.length === 0 ? (
@@ -223,6 +244,7 @@ export function PropertiesSection() {
             </tbody>
           </table>
         )}
+        <SectionFooter pageNumber={page} pageSize={PAGE_SIZE} totalCount={totalCount} onPageChange={setPage} />
       </CardTable>
 
       <PropertyForm open={formOpen} property={editing} agents={agents} onClose={closeForm} />

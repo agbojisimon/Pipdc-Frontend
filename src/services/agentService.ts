@@ -1,8 +1,17 @@
 import { api } from './api';
 import type { Agent, AgentSummary, Paginated } from '../types';
 
+export interface AgentFilters {
+  keyword?: string;
+  isVerified?: boolean;
+  sortBy?: string;
+  sortDescending?: boolean;
+  pageNumber?: number;
+  pageSize?: number;
+}
+
 export const agentService = {
-  async list(params?: { keyword?: string; page?: number; pageSize?: number }): Promise<Paginated<Agent>> {
+  async list(params?: AgentFilters): Promise<Paginated<Agent>> {
     const { data } = await api.get<Paginated<Agent>>('/agents', { params });
     return data;
   },

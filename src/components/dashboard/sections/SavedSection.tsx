@@ -11,7 +11,9 @@ import { extractApiError } from '../../../services/api';
 import { formatPrice, timeAgo } from '../../../utils/format';
 import { propertyStatusLabel } from '../../../utils/propertyStatus';
 import { useToast } from '../../ui/Toast';
-import { CardTable, RowActions, LoadingRows, TableEmpty, thClass, tdClass } from './shared';
+import { CardTable, RowActions, LoadingRows, TableEmpty, thClass, tdClass, SectionFooter } from './shared';
+
+const PAGE_SIZE = 10;
 
 const statusTone: Record<string, 'forest' | 'gold' | 'neutral' | 'info' | 'danger'> = {
   Available: 'forest',
@@ -23,13 +25,15 @@ const statusTone: Record<string, 'forest' | 'gold' | 'neutral' | 'info' | 'dange
 
 export function SavedSection() {
   const navigate = useNavigate();
-  const savedQuery = useSavedProperties();
+  const [page, setPage] = useState(1);
+  const savedQuery = useSavedProperties({ pageNumber: page, pageSize: PAGE_SIZE });
   const { isAuthenticated } = useAuth();
   const { toggle } = useFavourites();
   const { notify } = useToast();
   const [enquiringId, setEnquiringId] = useState<number | null>(null);
 
   const items = savedQuery.data?.items ?? [];
+  const totalCount = savedQuery.data?.totalCount ?? 0;
 
   const handleEnquire = async (propertyId: number) => {
     setEnquiringId(propertyId);
@@ -100,6 +104,7 @@ export function SavedSection() {
           </tbody>
         </table>
       )}
+      <SectionFooter pageNumber={page} pageSize={PAGE_SIZE} totalCount={totalCount} onPageChange={setPage} />
     </CardTable>
   );
 }

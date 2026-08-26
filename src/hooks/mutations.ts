@@ -208,6 +208,12 @@ export function useUpdateProfile() {
   });
 }
 
+export function useChangePassword() {
+  return useMutation({
+    mutationFn: (payload: { currentPassword: string; newPassword: string }) => authService.changePassword(payload),
+  });
+}
+
 export function useSendMessage() {
   const queryClient = useQueryClient();
   return useMutation({
