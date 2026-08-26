@@ -178,7 +178,7 @@ export function LocationsSection() {
               <tr className="border-b border-ink-100 bg-ink-50/60">
                 <th className={thClass}>Name</th>
                 <th className={thClass}>Type</th>
-                <th className={thClass}>Children</th>
+                <th className={thClass}>Cities</th>
                 <th className={thClass}></th>
               </tr>
             </thead>
