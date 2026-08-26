@@ -1,9 +1,10 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, MapPin, Home, Tag, Bed, Wallet } from 'lucide-react';
 import { Select } from '../ui/Input';
 import { Button } from '../ui/Button';
 import type { PropertyFilters, PropertyType, PropertyStatus } from '../../types';
-import { plateauLocations } from '../../services/mockData';
+import { useLocations } from '../../hooks/queries';
 import { propertyStatusLabel } from '../../utils/propertyStatus';
 
 interface SearchFilterProps {
@@ -22,6 +23,46 @@ const listingTypes = ['All', 'ForSale', 'ForLease'] as const;
 export function SearchFilter({ filters, onChange, onSearch, compact }: SearchFilterProps) {
   const navigate = useNavigate();
 
+  const { data: states = [] } = useLocations({ type: 'State' });
+  const { data: cities = [] } = useLocations(
+    filters.locationId && states.find(s => s.id === filters.locationId)
+      ? undefined
+      : undefined
+  );
+
+  const selectedStateId = (() => {
+    if (!filters.locationId) return '';
+    const state = states.find(s => s.id === filters.locationId);
+    return state ? String(state.id) : '';
+  })();
+
+  const selectedCityId = (() => {
+    if (!filters.locationId) return '';
+    const city = cities.find(c => c.id === filters.locationId && c.type !== 'State');
+    return city ? String(city.id) : '';
+  })();
+
+  const { data: childLocations = [] } = useLocations(
+    selectedStateId ? { parentId: Number(selectedStateId) } : undefined
+  );
+  const citiesForState = childLocations.filter(l => l.type === 'City' || l.type === 'LGA');
+
+  const handleStateChange = (stateId: string) => {
+    if (stateId === 'All') {
+      onChange({ ...filters, locationId: undefined, location: undefined });
+    } else {
+      onChange({ ...filters, locationId: Number(stateId), location: undefined });
+    }
+  };
+
+  const handleCityChange = (cityId: string) => {
+    if (cityId === 'All') {
+      onChange({ ...filters, locationId: Number(selectedStateId), location: undefined });
+    } else {
+      onChange({ ...filters, locationId: Number(cityId), location: undefined });
+    }
+  };
+
   const handleSearch = () => {
     onSearch?.();
     if (!onSearch) navigate('/properties');
@@ -31,16 +72,30 @@ export function SearchFilter({ filters, onChange, onSearch, compact }: SearchFil
     <div className={compact ? 'grid gap-3' : 'grid gap-3 md:grid-cols-2 lg:grid-cols-7'}>
       <div className="lg:col-span-1">
         <Select
-          aria-label="Location"
-          value={filters.location ?? 'All'}
-          onChange={(e) => onChange({ ...filters, location: e.target.value })}
+          aria-label="State"
+          value={selectedStateId || 'All'}
+          onChange={(e) => handleStateChange(e.target.value)}
         >
-          <option value="All">All Locations</option>
-          {plateauLocations.map((l) => (
-            <option key={l} value={l}>{l}</option>
+          <option value="All">All States</option>
+          {states.map((s) => (
+            <option key={s.id} value={s.id}>{s.name}</option>
           ))}
         </Select>
       </div>
+      {citiesForState.length > 0 && (
+        <div className="lg:col-span-1">
+          <Select
+            aria-label="City"
+            value={selectedCityId || 'All'}
+            onChange={(e) => handleCityChange(e.target.value)}
+          >
+            <option value="All">All Cities</option>
+            {citiesForState.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </Select>
+        </div>
+      )}
       <div className="lg:col-span-1">
         <Select
           aria-label="Property type"

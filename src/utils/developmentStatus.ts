@@ -7,22 +7,25 @@ import type {
 // ── Project Status ───────────────────────────────────────────────────────
 
 export const DEVELOPMENT_PROJECT_STATUS_OPTIONS: DevelopmentProjectStatus[] = [
-  'Planning',
-  'InConstruction',
+  'Planned',
+  'UnderConstruction',
+  'NearCompletion',
   'Completed',
   'OnHold',
 ];
 
 const PROJECT_TONES: Record<DevelopmentProjectStatus, 'info' | 'forest' | 'success' | 'gold'> = {
-  Planning: 'info',
-  InConstruction: 'forest',
+  Planned: 'info',
+  UnderConstruction: 'forest',
+  NearCompletion: 'info',
   Completed: 'success',
   OnHold: 'gold',
 };
 
 const PROJECT_LABELS: Record<DevelopmentProjectStatus, string> = {
-  Planning: 'Planning',
-  InConstruction: 'In Construction',
+  Planned: 'Planned',
+  UnderConstruction: 'Under Construction',
+  NearCompletion: 'Near Completion',
   Completed: 'Completed',
   OnHold: 'On Hold',
 };

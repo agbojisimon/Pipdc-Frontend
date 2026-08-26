@@ -6,7 +6,8 @@ import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 import { Input, Select, Textarea } from '../ui/Input';
 import { ImageUpload } from '../ui/ImageUpload';
-import { useCreateProperty, useUpdateProperty } from '../../hooks/mutations';
+import { useCreateProperty, useUpdateProperty, useCreateLocation } from '../../hooks/mutations';
+import { useLocations } from '../../hooks/queries';
 import { useToast } from '../ui/Toast';
 import { extractApiError } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
@@ -56,6 +57,7 @@ const schema = z.object({
   state: z.string().min(2, 'State is required'),
   city: z.string().min(2, 'City is required'),
   area: z.string().optional(),
+  locationId: z.number().optional(),
   latitude: z.number({ message: 'Enter a valid number' }).min(-90).max(90).optional(),
   longitude: z.number({ message: 'Enter a valid number' }).min(-180).max(180).optional(),
   amenities: z.string().optional(),
@@ -81,16 +83,71 @@ export function PropertyForm({ open, property, agents, onClose }: PropertyFormPr
   const { notify } = useToast();
   const createProperty = useCreateProperty();
   const updateProperty = useUpdateProperty();
-  const isEditing = Boolean(property);
-  const [images, setImages] = useState<UploadResult[]>([]);
-
-  const { register, handleSubmit, reset, setError, formState: { errors, isSubmitting } } = useForm<PropertyFormValues>({
+  const { register, handleSubmit, reset, setError, setValue, formState: { errors, isSubmitting } } = useForm<PropertyFormValues>({
     resolver: zodResolver(schema),
   });
+
+  const isEditing = Boolean(property);
+  const [images, setImages] = useState<UploadResult[]>([]);
+  const [selectedStateId, setSelectedStateId] = useState<number | null>(null);
+  const [selectedCityId, setSelectedCityId] = useState<number | null>(null);
+  const [showCityModal, setShowCityModal] = useState(false);
+  const [newCityName, setNewCityName] = useState('');
+
+  const { data: states = [] } = useLocations({ type: 'State' });
+  const { data: cities = [] } = useLocations(selectedStateId ? { parentId: selectedStateId } : undefined);
+  const cityLocations = cities.filter(l => l.type === 'City' || l.type === 'LGA');
+  const createLocation = useCreateLocation();
+
+  const handleStateLocationChange = (id: number | null) => {
+    setSelectedStateId(id);
+    setSelectedCityId(null);
+    setValue('locationId', id ?? undefined, { shouldDirty: true });
+    setValue('city', '', { shouldDirty: true });
+    if (id) {
+      const state = states.find(s => s.id === id);
+      if (state) setValue('state', state.name, { shouldDirty: true });
+    }
+  };
+
+  const handleCityChange = (cityId: number | null) => {
+    setSelectedCityId(cityId);
+    if (cityId) {
+      const city = cityLocations.find(c => c.id === cityId);
+      if (city) {
+        setValue('city', city.name, { shouldDirty: true });
+        setValue('locationId', cityId, { shouldDirty: true });
+      }
+    } else if (selectedStateId) {
+      setValue('locationId', selectedStateId, { shouldDirty: true });
+    }
+  };
+
+  const handleCreateCity = async () => {
+    const name = newCityName.trim();
+    if (!name || !selectedStateId) return;
+    try {
+      const result = await createLocation.mutateAsync({ name, type: 'City', parentId: selectedStateId });
+      if (result?.id) {
+        setSelectedCityId(result.id);
+        setValue('city', result.name, { shouldDirty: true });
+        setValue('locationId', result.id, { shouldDirty: true });
+      }
+      setNewCityName('');
+      setShowCityModal(false);
+      notify({ type: 'success', title: 'City added', description: `"${name}" was created.` });
+    } catch (err) {
+      notify({ type: 'error', title: 'Could not add city', description: extractApiError(err) });
+    }
+  };
 
   useEffect(() => {
     if (!open) {
       setImages([]);
+      setSelectedStateId(null);
+      setSelectedCityId(null);
+      setShowCityModal(false);
+      setNewCityName('');
       return;
     }
     if (property) {
@@ -114,6 +171,7 @@ export function PropertyForm({ open, property, agents, onClose }: PropertyFormPr
         state: property.state,
         city: property.city,
         area: property.area ?? '',
+        locationId: property.locationId ?? undefined,
         latitude: property.latitude ?? undefined,
         longitude: property.longitude ?? undefined,
         amenities: (property.amenities ?? []).join('\n'),
@@ -142,6 +200,7 @@ export function PropertyForm({ open, property, agents, onClose }: PropertyFormPr
         state: '',
         city: '',
         area: '',
+        locationId: undefined,
         latitude: undefined,
         longitude: undefined,
         amenities: '',
@@ -149,8 +208,24 @@ export function PropertyForm({ open, property, agents, onClose }: PropertyFormPr
         agentId: '',
       });
       setImages([]);
+      setSelectedStateId(null);
+      setSelectedCityId(null);
     }
   }, [open, property, reset]);
+
+  useEffect(() => {
+    if (!open || !property?.locationId || states.length === 0) return;
+    const state = states.find(s => s.id === property.locationId);
+    if (state) {
+      setSelectedStateId(state.id);
+    } else if (cityLocations.length > 0) {
+      const city = cityLocations.find(c => c.id === property.locationId);
+      if (city?.parentId) {
+        setSelectedStateId(city.parentId);
+        setSelectedCityId(city.id);
+      }
+    }
+  }, [open, property, states, cityLocations]);
 
   const parseList = (value?: string): string[] =>
     (value ?? '')
@@ -185,6 +260,7 @@ export function PropertyForm({ open, property, agents, onClose }: PropertyFormPr
       state: data.state,
       city: data.city,
       area: data.area?.trim() || undefined,
+      locationId: data.locationId,
       latitude: data.latitude,
       longitude: data.longitude,
       amenities: parseList(data.amenities),
@@ -262,15 +338,33 @@ export function PropertyForm({ open, property, agents, onClose }: PropertyFormPr
         <Input label="Address" placeholder="Street address" error={errors.address?.message} {...register('address')} />
 
         <div className="grid gap-4 sm:grid-cols-3">
-          <Input label="City" placeholder="e.g. Abuja" error={errors.city?.message} {...register('city')} />
-          <Input label="State" placeholder="e.g. FCT" error={errors.state?.message} {...register('state')} />
+          <Select label="State" value={selectedStateId ?? ''} onChange={(e) => handleStateLocationChange(e.target.value ? Number(e.target.value) : null)}>
+            <option value="">Select state</option>
+            {states.map((s) => (
+              <option key={s.id} value={s.id}>{s.name}</option>
+            ))}
+          </Select>
+          <div>
+            <Select label="City" value={selectedCityId ?? ''} onChange={(e) => handleCityChange(e.target.value ? Number(e.target.value) : null)}>
+              <option value="">{selectedStateId ? 'Select city' : 'Select a state first'}</option>
+              {cityLocations.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </Select>
+            {selectedStateId && (
+              <button type="button" onClick={() => setShowCityModal(true)} className="mt-1 text-xs font-medium text-forest-600 hover:text-forest-700 transition-colors">
+                + Add new city
+              </button>
+            )}
+          </div>
           <Input label="Area" placeholder="Neighbourhood / district" error={errors.area?.message} {...register('area')} />
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-3">
+        <Input label="Slug (optional)" placeholder="Auto-generated from title if blank" error={errors.slug?.message} {...register('slug')} />
+
+        <div className="grid gap-4 sm:grid-cols-2">
           <Input label="Latitude" type="number" step="any" placeholder="e.g. 9.0765" error={errors.latitude?.message} {...register('latitude', { setValueAs: toOptionalNumber })} />
           <Input label="Longitude" type="number" step="any" placeholder="e.g. 7.3986" error={errors.longitude?.message} {...register('longitude', { setValueAs: toOptionalNumber })} />
-          <Input label="Slug (optional)" placeholder="Auto-generated from title if blank" error={errors.slug?.message} {...register('slug')} />
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -305,6 +399,29 @@ export function PropertyForm({ open, property, agents, onClose }: PropertyFormPr
           <Button type="submit" variant="primary" loading={isSubmitting}>{isEditing ? 'Save changes' : 'Publish property'}</Button>
         </div>
       </form>
+
+      {showCityModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-ink-900/50 backdrop-blur-sm" onClick={() => { setShowCityModal(false); setNewCityName(''); }} />
+          <div className="relative w-full max-w-sm rounded-xl bg-white p-5 shadow-lift">
+            <h3 className="text-lg font-semibold text-ink-900">Add City</h3>
+            <p className="mt-1 text-sm text-ink-500">Add a city under {states.find(s => s.id === selectedStateId)?.name}</p>
+            <input
+              type="text"
+              value={newCityName}
+              onChange={(e) => setNewCityName(e.target.value)}
+              placeholder="e.g. Jos, Bukuru, Shendam"
+              className="mt-4 w-full rounded-lg border border-ink-200 px-3 py-2 text-sm focus:border-forest-500 focus:outline-none focus:ring-1 focus:ring-forest-500"
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleCreateCity(); } }}
+              autoFocus
+            />
+            <div className="mt-4 flex justify-end gap-2">
+              <Button type="button" variant="ghost" size="sm" onClick={() => { setShowCityModal(false); setNewCityName(''); }}>Cancel</Button>
+              <Button type="button" variant="primary" size="sm" onClick={handleCreateCity} loading={createLocation.isPending}>Add city</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </Modal>
   );
 }

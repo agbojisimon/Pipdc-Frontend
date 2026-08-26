@@ -95,6 +95,14 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: 'locations',
+        element: (
+          <AdminGuard>
+            <DashboardSectionPage section="locations" />
+          </AdminGuard>
+        ),
+      },
+      {
         path: 'enquiries',
         element: (
           <StaffGuard>

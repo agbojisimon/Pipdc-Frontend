@@ -17,6 +17,18 @@ export type PropertyType =
   | 'Industrial'
   | 'Mixed';
 
+export type LocationType = 'State' | 'LGA' | 'City' | 'Area';
+
+export interface Location {
+  id: number;
+  name: string;
+  slug: string;
+  type: LocationType;
+  parentId: number | null;
+  parentName: string | null;
+  childCount: number;
+}
+
 export interface Agent {
   id: number;
   bio: string | null;
@@ -60,6 +72,7 @@ export interface Property {
   state: string;
   latitude?: number | null;
   longitude?: number | null;
+  locationId?: number | null;
   images: string[];
   coverImage?: string | null;
   amenities: string[];
@@ -278,6 +291,7 @@ export interface ClientDashboard {
 export interface PropertyFilters {
   query?: string;
   location?: string;
+  locationId?: number;
   type?: string;
   status?: string;
   listingType?: string;
