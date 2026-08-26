@@ -6,12 +6,20 @@ export interface CreateEnquiryPayload {
   propertyId: number;
 }
 
+export interface EnquiryFilters {
+  keyword?: string;
+  status?: string;
+  propertyId?: number;
+  pageNumber?: number;
+  pageSize?: number;
+}
+
 export const enquiryService = {
   async create(payload: CreateEnquiryPayload): Promise<Enquiry> {
     const { data } = await api.post<Enquiry>('/enquiries', payload);
     return data;
   },
-  async list(params?: Record<string, unknown>): Promise<Paginated<Enquiry>> {
+  async list(params?: EnquiryFilters): Promise<Paginated<Enquiry>> {
     const { data } = await api.get<Paginated<Enquiry>>('/enquiries', { params });
     return data;
   },
@@ -19,7 +27,7 @@ export const enquiryService = {
     const { data } = await api.get<Enquiry>(`/enquiries/${id}`);
     return data;
   },
-  async mine(params?: Record<string, unknown>): Promise<Paginated<Enquiry>> {
+  async mine(params?: EnquiryFilters): Promise<Paginated<Enquiry>> {
     const { data } = await api.get<Paginated<Enquiry>>('/enquiries/mine', { params });
     return data;
   },

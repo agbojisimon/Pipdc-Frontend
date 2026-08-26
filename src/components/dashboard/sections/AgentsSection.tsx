@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, ShieldCheck, ShieldOff, BarChart3 } from 'lucide-react';
+import { Plus, ShieldCheck, ShieldOff, BarChart3, Search } from 'lucide-react';
 import { Button } from '../../ui/Button';
 import { Badge } from '../../ui/Badge';
 import { Modal } from '../../ui/Modal';
@@ -9,11 +9,16 @@ import { useDeleteAgent, useToggleAgentVerification } from '../../../hooks/mutat
 import { useAgents, useAgentSummary } from '../../../hooks/queries';
 import { extractApiError } from '../../../services/api';
 import { useToast } from '../../ui/Toast';
-import { CardTable, RowActions, LoadingRows, TableEmpty, thClass, tdClass } from './shared';
+import { CardTable, RowActions, LoadingRows, TableEmpty, thClass, tdClass, SectionFooter } from './shared';
 import type { Agent } from '../../../types';
 
+const PAGE_SIZE = 10;
+
 export function AgentsSection() {
-  const agentsQuery = useAgents();
+  const [page, setPage] = useState(1);
+  const [keyword, setKeyword] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const agentsQuery = useAgents({ pageNumber: page, pageSize: PAGE_SIZE, keyword: keyword || undefined });
   const { notify } = useToast();
   const deleteAgent = useDeleteAgent();
   const toggleVerification = useToggleAgentVerification();
@@ -27,6 +32,7 @@ export function AgentsSection() {
   const summaryQuery = useAgentSummary(summarizing?.id);
 
   const agents = agentsQuery.data?.items ?? [];
+  const totalCount = agentsQuery.data?.totalCount ?? 0;
 
   const confirmDelete = async () => {
     if (!deleting) return;
@@ -64,6 +70,19 @@ export function AgentsSection() {
           </Button>
         }
       >
+        <div className="flex items-center gap-3 border-b border-ink-100 px-4 py-3">
+          <div className="relative flex-1 max-w-xs">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
+            <input
+              type="text"
+              placeholder="Search agents..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { setPage(1); setKeyword(searchInput); } }}
+              className="w-full rounded-lg border border-ink-200 bg-white py-2 pl-9 pr-3 text-sm text-ink-700 placeholder:text-ink-400 focus:border-forest-500 focus:outline-none focus:ring-1 focus:ring-forest-500/40"
+            />
+          </div>
+        </div>
         {agentsQuery.isLoading ? (
           <LoadingRows rows={5} />
         ) : agents.length === 0 ? (
@@ -127,6 +146,7 @@ export function AgentsSection() {
             </tbody>
           </table>
         )}
+        <SectionFooter pageNumber={page} pageSize={PAGE_SIZE} totalCount={totalCount} onPageChange={setPage} />
       </CardTable>
 
       <AgentForm open={formOpen} agent={editing} onClose={() => { setFormOpen(false); setEditing(null); }} />

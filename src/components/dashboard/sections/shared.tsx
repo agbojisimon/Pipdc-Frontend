@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Pencil, Trash2, ExternalLink } from 'lucide-react';
 import { Card, CardHeader, CardTitle } from '../../ui/Card';
 import { EmptyState } from '../../ui/EmptyState';
+import { Pagination } from '../../ui/Pagination';
 
 export const thClass = 'px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-ink-400';
 export const tdClass = 'px-4 py-3 text-sm text-ink-700';
@@ -78,6 +79,31 @@ export function RowActions({ viewUrl, onEdit, onDelete, deleteDisabled }: RowAct
           <Trash2 className="h-4 w-4" />
         </button>
       )}
+    </div>
+  );
+}
+
+interface SectionFooterProps {
+  pageNumber: number;
+  pageSize: number;
+  totalCount: number;
+  onPageChange: (page: number) => void;
+}
+
+export function SectionFooter({ pageNumber, pageSize, totalCount, onPageChange }: SectionFooterProps) {
+  const totalPages = Math.ceil(totalCount / pageSize);
+  if (totalCount === 0) return null;
+
+  const from = (pageNumber - 1) * pageSize + 1;
+  const to = Math.min(pageNumber * pageSize, totalCount);
+
+  return (
+    <div className="flex flex-col gap-3 border-t border-ink-100 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+      <span className="text-sm text-ink-500">
+        Showing <span className="font-medium text-ink-700">{from}–{to}</span> of{' '}
+        <span className="font-medium text-ink-700">{totalCount}</span> results
+      </span>
+      <Pagination page={pageNumber} totalPages={totalPages} onPageChange={onPageChange} />
     </div>
   );
 }

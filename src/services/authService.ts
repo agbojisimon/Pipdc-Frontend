@@ -49,4 +49,7 @@ export const authService = {
   async removeRole(payload: { email: string; role: string }): Promise<void> {
     await api.post('/auth/remove-role', payload);
   },
+  async changePassword(payload: { currentPassword: string; newPassword: string }): Promise<void> {
+    await api.post('/auth/change-password', payload);
+  },
 };

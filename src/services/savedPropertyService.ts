@@ -1,8 +1,14 @@
 import { api } from './api';
-import type { Paginated, Property, SavedProperty } from '../types';
+import type { Paginated, SavedProperty } from '../types';
+
+export interface SavedPropertyFilters {
+  keyword?: string;
+  pageNumber?: number;
+  pageSize?: number;
+}
 
 export const savedPropertyService = {
-  async list(params?: Record<string, unknown>): Promise<Paginated<SavedProperty>> {
+  async list(params?: SavedPropertyFilters): Promise<Paginated<SavedProperty>> {
     const { data } = await api.get<Paginated<SavedProperty>>('/saved-properties', { params });
     return data;
   },

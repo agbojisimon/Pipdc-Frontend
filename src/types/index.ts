@@ -266,6 +266,8 @@ export interface AdminDashboard {
   totalAgents: number;
   totalEnquiries: number;
   totalUsers: number;
+  totalDevelopmentProjects: number;
+  totalBlogPosts: number;
   recentProperties: Property[];
   recentEnquiries: Enquiry[];
 }

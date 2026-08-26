@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, ExternalLink, MessagesSquare } from 'lucide-react';
+import { Eye, ExternalLink, MessagesSquare, Search } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Badge } from '../../ui/Badge';
 import { Modal } from '../../ui/Modal';
@@ -14,11 +14,16 @@ import { extractApiError } from '../../../services/api';
 import { useToast } from '../../ui/Toast';
 import { cn } from '../../../utils/cn';
 import { ENQUIRY_STATUS_OPTIONS, enquiryStatusLabel, enquiryStatusTone } from '../../../utils/enquiryStatus';
-import { CardTable, RowActions, LoadingRows, TableEmpty, thClass, tdClass } from './shared';
+import { CardTable, RowActions, LoadingRows, TableEmpty, thClass, tdClass, SectionFooter } from './shared';
 import type { Enquiry, EnquiryStatus } from '../../../types';
 
+const PAGE_SIZE = 10;
+
 export function AgentEnquiriesSection({ title }: { title: string }) {
-  const enquiriesQuery = useEnquiries();
+  const [page, setPage] = useState(1);
+  const [keyword, setKeyword] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const enquiriesQuery = useEnquiries({ pageNumber: page, pageSize: PAGE_SIZE, keyword: keyword || undefined });
   const queryClient = useQueryClient();
   const { notify } = useToast();
   const navigate = useNavigate();
@@ -30,6 +35,7 @@ export function AgentEnquiriesSection({ title }: { title: string }) {
   const [deleting, setDeleting] = useState<Enquiry | null>(null);
 
   const enquiries = enquiriesQuery.data?.items ?? [];
+  const totalCount = enquiriesQuery.data?.totalCount ?? 0;
 
   const openEnquiry = async (e: Enquiry) => {
     setViewing(e);
@@ -72,6 +78,19 @@ export function AgentEnquiriesSection({ title }: { title: string }) {
   return (
     <>
       <CardTable title={title}>
+        <div className="flex items-center gap-3 border-b border-ink-100 px-4 py-3">
+          <div className="relative flex-1 max-w-xs">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
+            <input
+              type="text"
+              placeholder="Search enquiries..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { setPage(1); setKeyword(searchInput); } }}
+              className="w-full rounded-lg border border-ink-200 bg-white py-2 pl-9 pr-3 text-sm text-ink-700 placeholder:text-ink-400 focus:border-forest-500 focus:outline-none focus:ring-1 focus:ring-forest-500/40"
+            />
+          </div>
+        </div>
         {enquiriesQuery.isLoading ? (
           <LoadingRows rows={5} />
         ) : enquiries.length === 0 ? (
@@ -166,6 +185,7 @@ export function AgentEnquiriesSection({ title }: { title: string }) {
             </tbody>
           </table>
         )}
+        <SectionFooter pageNumber={page} pageSize={PAGE_SIZE} totalCount={totalCount} onPageChange={setPage} />
       </CardTable>
 
       <Modal open={Boolean(viewing)} onClose={() => setViewing(null)} title="Enquiry details" size="md">

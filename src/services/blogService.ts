@@ -1,13 +1,22 @@
 import { api } from './api';
-import type { BlogPost, Category, Tag } from '../types';
+import type { BlogPost, Category, Paginated, Tag } from '../types';
+
+export interface BlogFilters {
+  keyword?: string;
+  status?: string;
+  categoryId?: number;
+  tagId?: number;
+  pageNumber?: number;
+  pageSize?: number;
+}
 
 export const blogService = {
-  async list(params?: Record<string, unknown>): Promise<BlogPost[]> {
-    const { data } = await api.get<BlogPost[]>('/blog', { params });
+  async list(params?: BlogFilters): Promise<Paginated<BlogPost>> {
+    const { data } = await api.get<Paginated<BlogPost>>('/blog', { params });
     return data;
   },
-  async listManaged(params?: Record<string, unknown>): Promise<BlogPost[]> {
-    const { data } = await api.get<BlogPost[]>('/blog/manage', { params });
+  async listManaged(params?: BlogFilters): Promise<Paginated<BlogPost>> {
+    const { data } = await api.get<Paginated<BlogPost>>('/blog/manage', { params });
     return data;
   },
   async getBySlug(slug: string): Promise<BlogPost> {

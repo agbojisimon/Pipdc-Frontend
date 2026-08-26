@@ -8,7 +8,7 @@ import { PageLoader } from '../../components/ui/Spinner';
 
 export function BlogPage() {
   const { data, isLoading, isError } = useBlogPosts();
-  const posts = data ?? [];
+  const posts = data?.items ?? [];
 
   return (
     <div className="section-pad bg-white">
