@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { ChevronRight, Plus, Trash2 } from 'lucide-react';
 import { Button } from '../../ui/Button';
 import { Badge } from '../../ui/Badge';
 import { ConfirmDialog } from '../../ui/ConfirmDialog';
@@ -17,6 +17,98 @@ const typeTone: Record<LocationType, 'forest' | 'gold' | 'neutral' | 'info'> = {
   Area: 'neutral',
 };
 
+function StateRow({
+  state,
+  expanded,
+  onToggle,
+  onAddCity,
+  onDelete,
+}: {
+  state: Location;
+  expanded: boolean;
+  onToggle: () => void;
+  onAddCity: () => void;
+  onDelete: (loc: Location) => void;
+}) {
+  const { data: children = [], isLoading: childrenLoading } = useLocations(
+    expanded ? { parentId: state.id } : undefined,
+  );
+
+  return (
+    <>
+      <tr className="transition-colors hover:bg-ink-50/60">
+        <td className={tdClass}>
+          <button
+            type="button"
+            onClick={onToggle}
+            className="inline-flex items-center gap-1.5 text-left"
+          >
+            <ChevronRight
+              className={`h-4 w-4 text-ink-400 transition-transform ${expanded ? 'rotate-90' : ''}`}
+            />
+            <span className="font-medium text-ink-900">{state.name}</span>
+            <span className="text-xs text-ink-400">{state.slug}</span>
+          </button>
+        </td>
+        <td className={tdClass}><Badge tone={typeTone[state.type]}>{state.type}</Badge></td>
+        <td className={tdClass}>{state.childCount}</td>
+        <td className={tdClass}>
+          <div className="flex items-center justify-end gap-1.5">
+            <Button variant="ghost" size="sm" onClick={onAddCity} leftIcon={<Plus className="h-3.5 w-3.5" />}>
+              Add City
+            </Button>
+            <button
+              type="button"
+              onClick={() => onDelete(state)}
+              title="Delete"
+              className="rounded-lg p-2.5 text-ink-400 transition-colors hover:bg-red-50 hover:text-red-600"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        </td>
+      </tr>
+
+      {expanded && (
+        <>
+          {childrenLoading ? (
+            <tr>
+              <td colSpan={4} className="px-6 py-4 text-sm text-ink-400">Loading cities...</td>
+            </tr>
+          ) : children.length === 0 ? (
+            <tr>
+              <td colSpan={4} className="px-6 py-4 text-sm text-ink-400">No cities yet.</td>
+            </tr>
+          ) : (
+            children.map((child) => (
+              <tr key={child.id} className="bg-ink-50/30 transition-colors hover:bg-ink-50/60">
+                <td className={tdClass}>
+                  <span className="pl-8 font-medium text-ink-700">{child.name}</span>
+                  <span className="ml-2 block pl-8 text-xs text-ink-400">{child.slug}</span>
+                </td>
+                <td className={tdClass}><Badge tone={typeTone[child.type]}>{child.type}</Badge></td>
+                <td className={tdClass}>{child.childCount}</td>
+                <td className={tdClass}>
+                  <div className="flex items-center justify-end gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => onDelete(child)}
+                      title="Delete"
+                      className="rounded-lg p-2.5 text-ink-400 transition-colors hover:bg-red-50 hover:text-red-600"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))
+          )}
+        </>
+      )}
+    </>
+  );
+}
+
 export function LocationsSection() {
   const { data: states = [], isLoading } = useLocations({ type: 'State' });
   const { notify } = useToast();
@@ -28,6 +120,7 @@ export function LocationsSection() {
   const [parentId, setParentId] = useState<number | null>(null);
   const [name, setName] = useState('');
   const [deleting, setDeleting] = useState<Location | null>(null);
+  const [expandedStateId, setExpandedStateId] = useState<number | null>(null);
 
   const resetForm = () => {
     setFormOpen(false);
@@ -91,29 +184,14 @@ export function LocationsSection() {
             </thead>
             <tbody className="divide-y divide-ink-50">
               {states.map((s) => (
-                <tr key={s.id} className="transition-colors hover:bg-ink-50/60">
-                  <td className={tdClass}>
-                    <span className="font-medium text-ink-900">{s.name}</span>
-                    <span className="block text-xs text-ink-400">{s.slug}</span>
-                  </td>
-                  <td className={tdClass}><Badge tone={typeTone[s.type]}>{s.type}</Badge></td>
-                  <td className={tdClass}>{s.childCount}</td>
-                  <td className={tdClass}>
-                    <div className="flex items-center justify-end gap-1.5">
-                      <Button variant="ghost" size="sm" onClick={() => openAddChild('State', s.id)} leftIcon={<Plus className="h-3.5 w-3.5" />}>
-                        Add City
-                      </Button>
-                      <button
-                        type="button"
-                        onClick={() => setDeleting(s)}
-                        title="Delete"
-                        className="rounded-lg p-2.5 text-ink-400 transition-colors hover:bg-red-50 hover:text-red-600"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                <StateRow
+                  key={s.id}
+                  state={s}
+                  expanded={expandedStateId === s.id}
+                  onToggle={() => setExpandedStateId(expandedStateId === s.id ? null : s.id)}
+                  onAddCity={() => openAddChild('State', s.id)}
+                  onDelete={setDeleting}
+                />
               ))}
             </tbody>
           </table>
