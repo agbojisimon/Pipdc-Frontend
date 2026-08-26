@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Building2, Users, MessageSquare, UserCircle, Plus } from 'lucide-react';
+import { Building2, Users, MessageSquare, UserCircle, Layers, FileText, Plus } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { StatCard } from './StatCard';
 import { PropertyList } from './PropertyList';
@@ -21,11 +21,13 @@ export function AdminDashboard({ data }: { data: AdminDashboardData }) {
         </Link>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard label="Total Properties" value={data.totalProperties} icon={<Building2 className="h-5 w-5" />} index={0} />
         <StatCard label="Total Agents" value={data.totalAgents} icon={<Users className="h-5 w-5" />} index={1} tone="gold" />
         <StatCard label="Total Enquiries" value={data.totalEnquiries} icon={<MessageSquare className="h-5 w-5" />} index={2} tone="dark" />
         <StatCard label="Total Users" value={data.totalUsers} icon={<UserCircle className="h-5 w-5" />} index={3} tone="info" />
+        <StatCard label="Development Projects" value={data.totalDevelopmentProjects} icon={<Layers className="h-5 w-5" />} index={4} tone="forest" />
+        <StatCard label="Blog Posts" value={data.totalBlogPosts} icon={<FileText className="h-5 w-5" />} index={5} tone="gold" />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
