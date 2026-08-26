@@ -30,7 +30,7 @@ export function HomePage() {
   const featured = featuredQuery.data?.slice(0, 6) ?? [];
   const latest = latestQuery.data?.items ?? [];
   const agents = agentsQuery.data?.items?.slice(0, 4) ?? [];
-  const posts = postsQuery.data?.slice(0, 3) ?? [];
+  const posts = postsQuery.data?.items?.slice(0, 3) ?? [];
 
   const onSearch = () => {
     const params = new URLSearchParams();

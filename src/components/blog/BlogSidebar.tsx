@@ -4,7 +4,8 @@ import { useBlogPosts, useBlogCategories } from '../../hooks/queries';
 import { formatDate } from '../../utils/format';
 
 export function BlogSidebar() {
-  const { data: posts = [] } = useBlogPosts();
+  const { data } = useBlogPosts();
+  const posts = data?.items ?? [];
   const { data: categories = [] } = useBlogCategories();
   const latest = posts.slice(0, 5);
 
