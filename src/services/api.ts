@@ -102,6 +102,14 @@ export function extractApiError(error: unknown): string {
   return 'Something went wrong. Please try again.';
 }
 
+export function extractApiErrorCode(error: unknown): string | undefined {
+  if (axios.isAxiosError(error)) {
+    const body = error.response?.data as ApiErrorBody | undefined;
+    return body?.code;
+  }
+  return undefined;
+}
+
 export function isApiConfigured(): boolean {
   return Boolean(import.meta.env.VITE_API_URL);
 }

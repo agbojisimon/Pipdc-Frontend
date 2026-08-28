@@ -15,7 +15,7 @@ const schema = z.object({
   firstName: z.string().min(2, 'Enter your first name'),
   lastName: z.string().min(2, 'Enter your last name'),
   email: z.string().email('Enter a valid email'),
-  password: z.string().min(6, 'At least 6 characters'),
+  password: z.string().min(8, 'At least 8 characters'),
   terms: z.boolean().refine((v) => v, 'You must accept the terms'),
 });
 
@@ -45,8 +45,14 @@ export function RegisterPage() {
         email: data.email,
         password: data.password,
       });
-      notify({ type: 'success', title: 'Account created', description: 'Sign in to continue to PIPDC.' });
-      navigate('/login', { state: pendingFrom ? { from: pendingFrom } : undefined });
+      notify({
+        type: 'success',
+        title: 'Account created',
+        description: 'We sent a 6-digit verification code to your email. Enter it to activate your account.',
+      });
+      navigate(`/verify-email?email=${encodeURIComponent(data.email)}`, {
+        state: pendingFrom ? { from: pendingFrom } : undefined,
+      });
     } catch (err) {
       setServerError(extractApiError(err));
     }

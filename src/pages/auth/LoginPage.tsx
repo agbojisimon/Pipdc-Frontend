@@ -3,13 +3,13 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useState } from 'react';
-import { Eye, EyeOff, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight, ShieldCheck, MailCheck } from 'lucide-react';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../components/ui/Toast';
 import { authService } from '../../services/authService';
-import { extractApiError } from '../../services/api';
+import { extractApiError, extractApiErrorCode } from '../../services/api';
 import { isInternalPath } from '../../utils/navigation';
 
 const schema = z.object({
@@ -27,6 +27,7 @@ export function LoginPage() {
   const { notify } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [unconfirmedEmail, setUnconfirmedEmail] = useState<string | null>(null);
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginForm>({
     resolver: zodResolver(schema),
     defaultValues: { remember: true },
@@ -34,6 +35,7 @@ export function LoginPage() {
 
   const onSubmit = async (data: LoginForm) => {
     setServerError(null);
+    setUnconfirmedEmail(null);
     try {
       const auth = await authService.login({ email: data.email, password: data.password });
       await signIn(auth);
@@ -42,6 +44,10 @@ export function LoginPage() {
       const destination = isInternalPath(from) ? from : auth.roles.includes('Admin') ? '/dashboard' : '/';
       navigate(destination, { replace: true });
     } catch (err) {
+      if (extractApiErrorCode(err) === 'EMAIL_NOT_CONFIRMED') {
+        setUnconfirmedEmail(data.email);
+        return;
+      }
       setServerError(extractApiError(err));
     }
   };
@@ -60,6 +66,30 @@ export function LoginPage() {
 
       {serverError && (
         <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">{serverError}</div>
+      )}
+
+      {unconfirmedEmail && (
+        <div className="mb-4 rounded-xl border border-forest-200 bg-forest-50 p-4 text-sm text-ink-700">
+          <div className="flex items-start gap-3">
+            <MailCheck className="mt-0.5 h-5 w-5 shrink-0 text-forest-600" />
+            <div>
+              <p className="font-semibold text-forest-800">Please verify your email first</p>
+              <p className="mt-1 text-ink-600">
+                A verification code has been sent to <span className="font-semibold text-ink-800">{unconfirmedEmail}</span>.
+                Enter it to activate your account before signing in.
+              </p>
+              <Button
+                type="button"
+                variant="primary"
+                size="md"
+                className="mt-3"
+                onClick={() => navigate(`/verify-email?email=${encodeURIComponent(unconfirmedEmail)}`)}
+              >
+                Verify my email
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
