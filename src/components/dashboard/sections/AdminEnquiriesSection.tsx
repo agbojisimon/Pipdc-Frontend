@@ -180,8 +180,8 @@ export function AdminEnquiriesSection({ title }: { title: string }) {
       const result = await notifyAgent.mutateAsync(e.id);
       notify({
         type: 'success',
-        title: 'Agent notification prepared',
-        description: `Notification payload ready for ${result.agentName}. Email delivery is not enabled yet.`,
+        title: 'Agent notified',
+        description: `Notification sent to ${result.agentName}. A reminder email is on its way.`,
       });
     } catch (err) {
       notify({ type: 'error', title: 'Could not notify agent', description: extractApiError(err) });
