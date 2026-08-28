@@ -25,6 +25,8 @@ import { DevelopmentDetailsPage } from './pages/DevelopmentDetailsPage';
 import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
 import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage';
+import { VerifyEmailPage } from './pages/auth/VerifyEmailPage';
+import { ResetPasswordPage } from './pages/auth/ResetPasswordPage';
 import { DashboardPage } from './pages/dashboard/DashboardPage';
 import { DashboardSectionPage } from './pages/dashboard/DashboardSectionPage';
 import { DevelopmentDetailPage } from './pages/dashboard/DevelopmentDetailPage';
@@ -67,6 +69,8 @@ const router = createBrowserRouter([
       { path: '/login', element: <LoginPage /> },
       { path: '/register', element: <RegisterPage /> },
       { path: '/forgot-password', element: <ForgotPasswordPage /> },
+      { path: '/verify-email', element: <VerifyEmailPage /> },
+      { path: '/reset-password', element: <ResetPasswordPage /> },
     ],
   },
   {

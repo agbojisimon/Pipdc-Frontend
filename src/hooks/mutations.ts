@@ -214,6 +214,25 @@ export function useChangePassword() {
   });
 }
 
+export function useVerifyEmail() {
+  return useMutation({
+    mutationFn: (payload: { email: string; code: string }) => authService.verifyEmail(payload),
+  });
+}
+
+export function useResendVerification() {
+  return useMutation({
+    mutationFn: (email: string) => authService.resendVerification(email),
+  });
+}
+
+export function useResetPassword() {
+  return useMutation({
+    mutationFn: (payload: { email: string; code: string; newPassword: string }) =>
+      authService.resetPassword(payload),
+  });
+}
+
 export function useSendMessage() {
   const queryClient = useQueryClient();
   return useMutation({
