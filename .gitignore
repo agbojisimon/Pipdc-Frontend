@@ -22,3 +22,4 @@ dist-ssr
 *.sw?
 .env
 .bolt/
+PHASE4_FRONTEND_IMPL_PLAN.md
