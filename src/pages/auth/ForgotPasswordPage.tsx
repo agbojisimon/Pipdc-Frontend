@@ -7,8 +7,9 @@ import { ArrowRight, Mail } from 'lucide-react';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { useToast } from '../../components/ui/Toast';
-import { authService } from '../../services/authService';
+import { authService, type TurnstileVerification } from '../../services/authService';
 import { extractApiError } from '../../services/api';
+import { TurnstileWidget } from '../../components/TurnstileWidget';
 
 const schema = z.object({
   email: z.string().email('Enter a valid email'),
@@ -20,6 +21,8 @@ export function ForgotPasswordPage() {
   const navigate = useNavigate();
   const { notify } = useToast();
   const [serverError, setServerError] = useState<string | null>(null);
+  const [turnstile, setTurnstile] = useState<TurnstileVerification | null>(null);
+  const [turnstileReset, setTurnstileReset] = useState(0);
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<ForgotForm>({
     resolver: zodResolver(schema),
   });
@@ -27,11 +30,13 @@ export function ForgotPasswordPage() {
   const onSubmit = async (data: ForgotForm) => {
     setServerError(null);
     try {
-      await authService.forgotPassword(data.email);
+      await authService.forgotPassword(data.email, turnstile ?? undefined);
       notify({ type: 'info', title: 'Code sent', description: 'Check your inbox for a 6-digit code.' });
       navigate(`/reset-password?email=${encodeURIComponent(data.email)}`);
     } catch (err) {
       setServerError(extractApiError(err));
+      setTurnstile(null);
+      setTurnstileReset((n) => n + 1);
     }
   };
 
@@ -57,7 +62,8 @@ export function ForgotPasswordPage() {
           error={errors.email?.message}
           {...register('email')}
         />
-        <Button type="submit" variant="primary" size="lg" className="w-full" loading={isSubmitting} rightIcon={<ArrowRight className="h-4 w-4" />}>
+        <TurnstileWidget onVerification={setTurnstile} resetKey={turnstileReset} />
+        <Button type="submit" variant="primary" size="lg" className="w-full" loading={isSubmitting} disabled={!turnstile?.token} rightIcon={<ArrowRight className="h-4 w-4" />}>
           Send reset code
         </Button>
       </form>

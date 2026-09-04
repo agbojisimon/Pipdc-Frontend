@@ -7,8 +7,9 @@ import { Eye, EyeOff, ArrowRight, Check } from 'lucide-react';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { useToast } from '../../components/ui/Toast';
-import { authService } from '../../services/authService';
+import { authService, type TurnstileVerification } from '../../services/authService';
 import { extractApiError } from '../../services/api';
+import { TurnstileWidget } from '../../components/TurnstileWidget';
 import { isInternalPath } from '../../utils/navigation';
 
 const schema = z.object({
@@ -27,6 +28,8 @@ export function RegisterPage() {
   const { notify } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [turnstile, setTurnstile] = useState<TurnstileVerification | null>(null);
+  const [turnstileReset, setTurnstileReset] = useState(0);
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<RegisterForm>({
     resolver: zodResolver(schema),
   });
@@ -39,12 +42,15 @@ export function RegisterPage() {
   const onSubmit = async (data: RegisterForm) => {
     setServerError(null);
     try {
-      await authService.register({
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email,
-        password: data.password,
-      });
+      await authService.register(
+        {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          password: data.password,
+        },
+        turnstile ?? undefined,
+      );
       notify({
         type: 'success',
         title: 'Account created',
@@ -55,6 +61,8 @@ export function RegisterPage() {
       });
     } catch (err) {
       setServerError(extractApiError(err));
+      setTurnstile(null);
+      setTurnstileReset((n) => n + 1);
     }
   };
 
@@ -106,7 +114,9 @@ export function RegisterPage() {
         </label>
         {errors.terms && <p className="text-xs font-medium text-red-600">{errors.terms.message}</p>}
 
-        <Button type="submit" variant="primary" size="lg" className="w-full" loading={isSubmitting} rightIcon={<ArrowRight className="h-4 w-4" />}>
+        <TurnstileWidget onVerification={setTurnstile} resetKey={turnstileReset} />
+
+        <Button type="submit" variant="primary" size="lg" className="w-full" loading={isSubmitting} disabled={!turnstile?.token} rightIcon={<ArrowRight className="h-4 w-4" />}>
           Create account
         </Button>
       </form>
