@@ -93,7 +93,10 @@ api.interceptors.response.use(
 export function extractApiError(error: unknown): string {
   if (axios.isAxiosError(error)) {
     const body = error.response?.data as ApiErrorBody | undefined;
-    if (body?.message) return body.message;
+    if (typeof body?.detail === 'string' && body.detail) return body.detail;
+    if (typeof body?.message === 'string' && body.message) return body.message;
+    if (typeof body?.title === 'string' && body.title) return body.title;
+    if (error.response?.status === 429) return 'Too many requests. Please slow down and try again shortly.';
     if (error.response?.status === 401) return 'Your session has expired. Please sign in again.';
     if (error.response?.status === 404) return 'The requested resource could not be found.';
     if (!error.response) return 'Unable to reach the server. Is the backend running?';

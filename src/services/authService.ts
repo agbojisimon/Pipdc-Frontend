@@ -13,13 +13,24 @@ export interface RegisterPayload {
   password: string;
 }
 
+export interface TurnstileVerification {
+  token: string;
+  idempotencyKey: string;
+}
+
+function turnstileHeaders(t?: TurnstileVerification): Record<string, string> | undefined {
+  return t?.token
+    ? { 'X-Turnstile-Token': t.token, 'X-Turnstile-Idempotency-Key': t.idempotencyKey }
+    : undefined;
+}
+
 export const authService = {
   async login(payload: LoginPayload): Promise<AuthResponse> {
     const { data } = await api.post<AuthResponse>('/auth/login', payload);
     return data;
   },
-  async register(payload: RegisterPayload): Promise<void> {
-    await api.post('/auth/register', payload);
+  async register(payload: RegisterPayload, turnstile?: TurnstileVerification): Promise<void> {
+    await api.post('/auth/register', payload, { headers: turnstileHeaders(turnstile) });
   },
   async refresh(refreshToken: string): Promise<AuthResponse> {
     const { data } = await api.post<AuthResponse>('/auth/refresh', { refreshToken });
@@ -32,8 +43,8 @@ export const authService = {
       // Best-effort revoke.
     }
   },
-  async forgotPassword(email: string): Promise<void> {
-    await api.post('/auth/forgot-password', { email });
+  async forgotPassword(email: string, turnstile?: TurnstileVerification): Promise<void> {
+    await api.post('/auth/forgot-password', { email }, { headers: turnstileHeaders(turnstile) });
   },
   async verifyEmail(payload: { email: string; code: string }): Promise<void> {
     await api.post('/auth/verify-email', payload);

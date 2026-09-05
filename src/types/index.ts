@@ -349,7 +349,10 @@ export interface Paginated<T> {
 }
 
 export interface ApiErrorBody {
-  code: string;
-  message: string;
+  code?: string;
+  message?: string;
   type?: string;
+  title?: string;
+  detail?: string;
+  status?: number;
 }
